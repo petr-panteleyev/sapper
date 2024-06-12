@@ -1,0 +1,23 @@
+.menu {
+    -fx-font-size: 14;
+}
+
+.menu .label {
+    -fx-font-size: 14;
+}
+
+.button {
+    -fx-font-weight: bolder;
+    -fx-font-size: 24;
+}
+
+.remainingCount {
+    -fx-font-weight: bold;
+    -fx-font-size: 24pt;
+    -fx-text-fill: red;
+}
+
+.gridPane {
+    -fx-hgap: 5;
+    -fx-vgap: 5;
+}
