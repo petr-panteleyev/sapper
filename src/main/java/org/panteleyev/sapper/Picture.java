@@ -11,13 +11,11 @@ import static java.util.Objects.requireNonNull;
 
 public enum Picture {
     ICON("icon.png"),
-    MINE("mine.png"),
-    MINE_RED("mine-red.png"),
     SMILING_FACE("smiling-face.png"),
     SAD_FACE("sad-face.png"),
     LAUGHING_FACE("laughing-face.png"),
-    GREEN_FLAG("green-flag.png"),
-    RED_FLAG("red-flag.png");
+    RED_FLAG("red-flag.png"),
+    CROSSED_RED_FLAG("crossed-red-flag.png");
 
     private final Image image;
 

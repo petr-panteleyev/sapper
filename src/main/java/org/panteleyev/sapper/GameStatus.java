@@ -5,8 +5,18 @@
 package org.panteleyev.sapper;
 
 public enum GameStatus {
-    INITIAL,
-    IN_PROGRESS,
-    SUCCESS,
-    FAILURE
+    INITIAL(false),
+    IN_PROGRESS(false),
+    SUCCESS(true),
+    FAILURE(true);
+
+    private final boolean isFinal;
+
+    GameStatus(boolean isFinal) {
+        this.isFinal = isFinal;
+    }
+
+    public boolean isFinal() {
+        return isFinal;
+    }
 }

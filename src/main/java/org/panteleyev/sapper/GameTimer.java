@@ -4,18 +4,21 @@
  */
 package org.panteleyev.sapper;
 
-import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Timer;
+import java.util.TimerTask;
 
-public class GameTimer extends AnimationTimer {
+public class GameTimer {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("mm:ss");
 
-    private long startNanos;
+    private Timer timer;
+
     private long seconds;
     private LocalTime localTime;
 
@@ -25,27 +28,33 @@ public class GameTimer extends AnimationTimer {
         return timeStringProperty;
     }
 
-    @Override
-    public void start() {
-        startNanos = 0;
-        seconds = 0;
-        localTime = LocalTime.ofSecondOfDay(0);
-        super.start();
+    public LocalTime getLocalTime() {
+        return localTime;
     }
 
-    @Override
-    public void handle(long nanos) {
-        if (startNanos == 0) {
-            startNanos = nanos;
-        }
+    public void start() {
+        seconds = 0;
 
-        var diff = nanos - startNanos;
-        var newSeconds = diff / 1_000_000_000;
-        if (newSeconds > seconds) {
-            seconds = newSeconds;
-            localTime = LocalTime.ofSecondOfDay(seconds);
-            timeStringProperty.set(FORMATTER.format(localTime));
+        timer= new Timer(true);
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                handle();
+            }
+        }, 1000, 1000);
+    }
+
+    public void stop() {
+        if (timer != null) {
+            timer.cancel();
         }
+    }
+
+
+    public void handle() {
+        seconds++;
+        localTime = LocalTime.ofSecondOfDay(seconds);
+        Platform.runLater(() -> timeStringProperty.set(FORMATTER.format(localTime)));
     }
 
     public void reset() {

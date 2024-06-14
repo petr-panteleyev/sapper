@@ -4,26 +4,31 @@
  */
 package org.panteleyev.sapper;
 
+import javafx.application.Platform;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.panteleyev.fx.Controller;
+import org.panteleyev.sapper.score.GameScore;
+import org.panteleyev.sapper.score.ScoreBoardDialog;
 
+import java.time.LocalDate;
 import java.util.List;
 
+import static org.panteleyev.fx.FxUtils.ELLIPSIS;
+import static org.panteleyev.fx.FxUtils.fxString;
 import static org.panteleyev.fx.MenuFactory.menu;
 import static org.panteleyev.fx.MenuFactory.menuItem;
 import static org.panteleyev.fx.grid.ColumnConstraintsBuilder.columnConstraints;
@@ -31,38 +36,38 @@ import static org.panteleyev.fx.grid.GridBuilder.gridPane;
 import static org.panteleyev.fx.grid.GridRowBuilder.gridRow;
 import static org.panteleyev.sapper.Board.CELL_EMPTY_FLAG;
 import static org.panteleyev.sapper.Board.CELL_MINE;
+import static org.panteleyev.sapper.Constants.APP_TITLE;
+import static org.panteleyev.sapper.Constants.UI;
+import static org.panteleyev.sapper.GlobalContext.scoreboard;
+import static org.panteleyev.sapper.bundles.Internationalization.I18N_ABOUT;
+import static org.panteleyev.sapper.bundles.Internationalization.I18N_EXIT;
+import static org.panteleyev.sapper.bundles.Internationalization.I18N_FILE;
+import static org.panteleyev.sapper.bundles.Internationalization.I18N_GAME;
+import static org.panteleyev.sapper.bundles.Internationalization.I18N_HELP;
+import static org.panteleyev.sapper.bundles.Internationalization.I18N_RESULTS;
 
-public class SapperWindowController extends Controller {
-    private static final int CELL_SIZE = 48;
-    private static final int IMAGE_SIZE = 32;
+public class SapperWindowController extends Controller implements Board.CellChangeCallback, Board.GameStatusChangeCallback {
+    private static final int CELL_SIZE = 40;
+    private static final int IMAGE_SIZE = 24;
 
-    private BoardSize boardSize = BoardSize.BIG;
+    private GameType gameType = GameType.BIG;
     private Board board;
-    private Button[][] buttons;
-    private GameStatus gameStatus = GameStatus.INITIAL;
+    private ToggleButton[] buttons;
 
     private final Label remainingMinesLabel = new Label();
-    private final Button controlButton = new Button();
-    private final Label timerLabel = new Label();
     private final ImageView controlButtonImageView;
     private final GridPane grid = new GridPane();
 
-    private static final CornerRadii BUTTON_CORNER = new CornerRadii(5);
-    private static final Insets BUTTON_INSETS = new Insets(1);
-
-    private static final BackgroundFill BASE_FILL = new BackgroundFill(
-            Color.LIGHTGRAY, null, null
-    );
-    private static final Background[] NUMBER_BACKGROUNDS = {
-            new Background(BASE_FILL, new BackgroundFill(Color.rgb(0xDE, 0xDE, 0xDC), BUTTON_CORNER, BUTTON_INSETS)),
-            new Background(BASE_FILL, new BackgroundFill(Color.rgb(0xDD, 0xFA, 0xC3), BUTTON_CORNER, BUTTON_INSETS)),
-            new Background(BASE_FILL, new BackgroundFill(Color.rgb(0xEC, 0xED, 0xBF), BUTTON_CORNER, BUTTON_INSETS)),
-            new Background(BASE_FILL, new BackgroundFill(Color.rgb(0xED, 0xDA, 0xB4), BUTTON_CORNER, BUTTON_INSETS)),
-            new Background(BASE_FILL, new BackgroundFill(Color.rgb(0xED, 0xC3, 0x8A), BUTTON_CORNER, BUTTON_INSETS)),
-            new Background(BASE_FILL, new BackgroundFill(Color.rgb(0xF7, 0xA1, 0xA2), BUTTON_CORNER, BUTTON_INSETS)),
-            new Background(BASE_FILL, new BackgroundFill(Color.rgb(0xFE, 0xA7, 0x85), BUTTON_CORNER, BUTTON_INSETS)),
-            new Background(BASE_FILL, new BackgroundFill(Color.rgb(0xFF, 0xB6, 0xC1), BUTTON_CORNER, BUTTON_INSETS)),
-            new Background(BASE_FILL, new BackgroundFill(Color.rgb(0x8B, 0x45, 0x13), BUTTON_CORNER, BUTTON_INSETS))
+    private static final Color[] NUMBER_COLORS = {
+            null,
+            Color.BLUE,
+            Color.GREEN,
+            Color.RED,
+            Color.DARKBLUE,
+            Color.BROWN,
+            Color.rgb(0xFE, 0xA7, 0x85),
+            Color.rgb(0xFF, 0xB6, 0xC1),
+            Color.rgb(0x8B, 0x45, 0x13)
     };
 
     private final GameTimer timer = new GameTimer();
@@ -72,6 +77,7 @@ public class SapperWindowController extends Controller {
         stage.setResizable(false);
         stage.getIcons().add(Picture.ICON.getImage());
 
+        var timerLabel = new Label();
         timerLabel.textProperty().bind(timer.timeStringProperty());
 
         remainingMinesLabel.getStyleClass().add("remainingCount");
@@ -80,9 +86,9 @@ public class SapperWindowController extends Controller {
         controlButtonImageView = new ImageView(Picture.SMILING_FACE.getImage());
         controlButtonImageView.setFitWidth(48);
         controlButtonImageView.setFitHeight(48);
-        controlButton.setGraphic(controlButtonImageView);
+        var controlButton = new Button(null, controlButtonImageView);
         controlButton.setFocusTraversable(false);
-        controlButton.setOnAction(_ -> newGame(boardSize));
+        controlButton.setOnAction(_ -> newGame(gameType));
 
         var innerPane = new BorderPane(grid);
         var toolBar = gridPane(List.of(
@@ -109,183 +115,172 @@ public class SapperWindowController extends Controller {
 
         setupWindow(borderPane);
 
-        newGame(BoardSize.BIG);
+        newGame(GameType.BIG);
     }
 
     @Override
     public String getTitle() {
-        return "Sapper";
+        return APP_TITLE;
     }
 
-    private void newGame(BoardSize boardSize) {
+    private void newGame(GameType gameType) {
         controlButtonImageView.setImage(Picture.SMILING_FACE.getImage());
-        gameStatus = GameStatus.INITIAL;
 
-        this.boardSize = boardSize;
-        board = new Board(boardSize);
+        this.gameType = gameType;
+        board = new Board(gameType, this, this);
         initButtons();
 
         timer.stop();
         timer.reset();
 
-
-        remainingMinesLabel.setText(Integer.toString(boardSize.mineCount()));
+        remainingMinesLabel.setText(Integer.toString(gameType.getMines()));
         getStage().sizeToScene();
     }
 
     private void initButtons() {
         grid.getChildren().clear();
-        buttons = new Button[board.getWidth()][board.getHeight()];
+        buttons = new ToggleButton[board.getSize()];
 
-        for (var x = 0; x < board.getWidth(); x++) {
-            for (var y = 0; y < board.getHeight(); y++) {
-                var button = new Button();
+        var index = 0;
+        for (var y = 0; y < board.getHeight(); y++) {
+            for (var x = 0; x < board.getWidth(); x++) {
+                var button = new ToggleButton();
+                button.getStyleClass().add("cellButton");
                 button.setPrefSize(CELL_SIZE, CELL_SIZE);
                 button.setMaxSize(CELL_SIZE, CELL_SIZE);
                 button.setMinSize(CELL_SIZE, CELL_SIZE);
                 button.setFocusTraversable(false);
-                button.setUserData(new Pos(x, y));
-                button.setOnMouseClicked(this::onButtonPress);
+                button.setUserData(index);
+                button.setOnMouseReleased(this::onButtonPress);
 
-                buttons[x][y] = button;
-
-                grid.add(buttons[x][y], x, y);
+                buttons[index++] = button;
+                grid.add(button, x, y);
             }
         }
     }
 
     private MenuBar createMainMenu() {
         return new MenuBar(
-                menu("File",
-                        menuItem("Exit", _ -> onExit())
+                menu(fxString(UI, I18N_FILE),
+                        menuItem(fxString(UI, I18N_EXIT), _ -> onExit())
                 ),
-                menu("Game",
-                        menuItem("Big", _ -> newGame(BoardSize.BIG)),
-                        menuItem("Medium", _ -> newGame(BoardSize.MEDIUM)),
-                        menuItem("Small", _ -> newGame(BoardSize.SMALL))
-                )
+                menu(fxString(UI, I18N_GAME),
+                        menuItem(GameType.BIG.toString(), _ -> newGame(GameType.BIG)),
+                        menuItem(GameType.MEDIUM.toString(), _ -> newGame(GameType.MEDIUM)),
+                        menuItem(GameType.SMALL.toString(), _ -> newGame(GameType.SMALL)),
+                        new SeparatorMenuItem(),
+                        menuItem(fxString(UI, I18N_RESULTS), _ -> new ScoreBoardDialog(this, GameType.BIG).showAndWait())
+                ),
+                menu(fxString(UI, I18N_HELP),
+                        menuItem(fxString(UI, I18N_ABOUT) + " " + APP_TITLE + ELLIPSIS,
+                                _ -> new AboutDialog(this).showAndWait()))
         );
-    }
-
-    private void renderBoard() {
-        for (int x = 0; x < board.getWidth(); x++) {
-            for (int y = 0; y < board.getHeight(); y++) {
-                renderButton(x, y);
-            }
-        }
     }
 
     private void renderSuccess() {
         timer.stop();
+
+        for (var button : buttons) {
+            button.setDisable(true);
+        }
+
         controlButtonImageView.setImage(Picture.LAUGHING_FACE.getImage());
+        var gameScore = new GameScore(
+                gameType,
+                LocalDate.now(),
+                timer.getLocalTime()
+        );
+        var top = scoreboard().add(gameScore);
+        scoreboard().save();
+        if (top) {
+            new ScoreBoardDialog(this, gameType).showAndWait();
+        }
     }
 
-    private void renderFailure(Pos pos) {
+    private void renderFailure(int clickPoint) {
         timer.stop();
         controlButtonImageView.setImage(Picture.SAD_FACE.getImage());
 
-        for (int x = 0; x < board.getWidth(); x++) {
-            for (int y = 0; y < board.getHeight(); y++) {
-                var value = board.getValue(x, y);
-                var button = buttons[x][y];
+        for (int x = 0; x < board.getSize(); x++) {
+            var value = board.getValue(x);
+            var button = buttons[x];
+            button.setDisable(true);
 
-                if (x == pos.x() && y == pos.y()) {
+            if (x == clickPoint) {
+                button.setText("*");
+                button.setTextFill(Color.RED);
+            } else {
+                if (value == CELL_EMPTY_FLAG) {
                     button.setText(null);
-                    button.setGraphic(Picture.imageView(Picture.MINE_RED, IMAGE_SIZE, IMAGE_SIZE));
-                } else {
-                    if (value == CELL_EMPTY_FLAG) {
-                        button.setText(null);
-                        button.setGraphic(Picture.imageView(Picture.RED_FLAG, IMAGE_SIZE, IMAGE_SIZE));
-                    }
+                    button.setGraphic(Picture.imageView(Picture.CROSSED_RED_FLAG, IMAGE_SIZE, IMAGE_SIZE));
+                }
 
-                    if (value == CELL_MINE) {
-                        button.setText(null);
-                        button.setGraphic(Picture.imageView(Picture.MINE, IMAGE_SIZE, IMAGE_SIZE));
-                    }
+                if (value == CELL_MINE) {
+                    button.setText("*");
+                    button.setGraphic(null);
                 }
             }
         }
     }
 
-    private void renderButton(int x, int y) {
-        var value = board.getValue(x, y);
-        var button = buttons[x][y];
+    @Override
+    public void onCellChanged(int x, int newValue) {
+        Platform.runLater(() -> {
+            var button = buttons[x];
 
-        switch (value) {
-            case Board.CELL_EMPTY, Board.CELL_MINE -> {
-                button.setText(null);
-                button.setGraphic(null);
+            switch (newValue) {
+                case Board.CELL_EMPTY, Board.CELL_MINE -> {
+                    button.setText(null);
+                    button.setGraphic(null);
+                }
+                case Board.CELL_EMPTY_FLAG, Board.CELL_MINE_FLAG -> {
+                    button.setText(null);
+                    button.setGraphic(Picture.imageView(Picture.RED_FLAG, IMAGE_SIZE, IMAGE_SIZE));
+                }
+                case 0 -> {
+                    button.setText(null);
+                    button.setGraphic(null);
+                    button.setSelected(true);
+                    button.setDisable(true);
+                }
+                default -> {
+                    button.setText(Integer.toString(newValue));
+                    button.setGraphic(null);
+                    button.setTextFill(NUMBER_COLORS[newValue]);
+                    button.setSelected(true);
+                    button.setDisable(true);
+                }
             }
-            case Board.CELL_EMPTY_FLAG, Board.CELL_MINE_FLAG -> {
-                button.setText("");
-                button.setGraphic(Picture.imageView(Picture.GREEN_FLAG, IMAGE_SIZE, IMAGE_SIZE));
-            }
-            case 0 -> {
-                button.setText(null);
-                button.setGraphic(null);
-                button.setBackground(NUMBER_BACKGROUNDS[0]);
-            }
-            default -> {
-                button.setText(Integer.toString(value));
-                button.setGraphic(null);
-                button.setBackground(NUMBER_BACKGROUNDS[value]);
-            }
-        }
+        });
+    }
 
-        if (value == 0) {
-            button.setDisable(true);
+    @Override
+    public void onGameStatusChanged(int x, GameStatus newStatus) {
+        switch (newStatus) {
+            case SUCCESS -> renderSuccess();
+            case FAILURE -> renderFailure(x);
+            case IN_PROGRESS -> timer.start();
         }
     }
 
     private void onButtonPress(MouseEvent event) {
-        if (gameStatus == GameStatus.FAILURE) {
-            event.consume();
+        event.consume();
+
+        if (board.getGameStatus().isFinal()) {
             return;
         }
 
-        var button = (Button) event.getSource();
-
-        var coords = (Pos) button.getUserData();
-
-        if (event.getButton() == MouseButton.SECONDARY) {
-            var hit = board.toggleFlag(coords);
-            if (!hit.ignore()) {
-                renderButton(coords.x(), coords.y());
-            }
-            if (hit.gameStatus() == GameStatus.SUCCESS) {
-                renderSuccess();
-            }
-        } else {
-            var hit = board.calculateHit(coords);
-
-            if (hit.ignore()) {
-                return;
-            }
-            if (hit.gameStatus() == GameStatus.FAILURE) {
-                gameStatus = GameStatus.FAILURE;
-                renderFailure(coords);
-                return;
-            }
-
-            if (gameStatus == GameStatus.INITIAL) {
-                timer.start();
-                gameStatus = GameStatus.IN_PROGRESS;
-            }
-
-
-            if (hit.cellStatus() == 0) {
-                renderBoard();
+        if (event.getSource() instanceof ToggleButton button
+                && button.getUserData() instanceof Integer hitPoint)
+        {
+            if (event.getButton() == MouseButton.SECONDARY) {
+                board.toggleFlag(hitPoint);
             } else {
-                renderButton(coords.x(), coords.y());
+                board.processHit(hitPoint);
             }
 
-            if (hit.gameStatus() == GameStatus.SUCCESS) {
-                renderSuccess();
-                return;
-            }
+            remainingMinesLabel.setText(Integer.toString(board.getRemainingMines()));
         }
-
-        remainingMinesLabel.setText(Integer.toString(board.getRemainingMines()));
     }
 
     private void onExit() {

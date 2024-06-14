@@ -6,15 +6,22 @@
     -fx-font-size: 14;
 }
 
-.button {
-    -fx-font-weight: bolder;
-    -fx-font-size: 24;
+.cellButton {
+    -fx-font-family: Mine-Sweeper;
+    -fx-font-weight: bold;
+    -fx-font-size: 20;
+    -fx-padding: 0 0 0 0;
+}
+
+.toggle-button:disabled, .toggle-button:disabled > * {
+    -fx-opacity: 1.0;
 }
 
 .remainingCount {
     -fx-font-weight: bold;
-    -fx-font-size: 24pt;
+    -fx-font-size: 26;
     -fx-text-fill: red;
+    -fx-font-family: 'Neat LCD';
 }
 
 .gridPane {

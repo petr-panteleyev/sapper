@@ -4,20 +4,26 @@
  */
 package org.panteleyev.sapper;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 
-import static java.lang.Math.max;
-import static java.lang.Math.min;
+import static org.panteleyev.sapper.BoardUtil.getNeighbours;
+import static org.panteleyev.sapper.BoardUtil.getSurroundingArea;
 
 public class Board {
+    public interface CellChangeCallback {
+        void onCellChanged(int x, int newValue);
+    }
+
+    public interface GameStatusChangeCallback {
+        void onGameStatusChanged(int x, GameStatus newStatus);
+    }
+
     private static final Random RANDOM = new Random(System.currentTimeMillis());
 
     static final int MAX_MINES = 8;
 
-    static final int FLAG_MASK = 2;
+    static final int FLAG_MASK = 0x2;
 
     static final int CELL_EMPTY = 1000;
     static final int CELL_MINE = 1001;
@@ -25,18 +31,58 @@ public class Board {
     static final int CELL_MINE_FLAG = CELL_MINE | FLAG_MASK;
 
     private GameStatus gameStatus = GameStatus.INITIAL;
-    private final BoardSize boardSize;
-    private final int[][] board;
+    private final int[] board;
     private int remainingMines;
 
-    public Board(BoardSize boardSize) {
-        this.boardSize = boardSize;
-        this.board = new int[boardSize.width()][boardSize.height()];
-        this.remainingMines = boardSize.mineCount();
+    private final int width;
+    private final int height;
+    private final int size;
+    private final int mineCount;
 
-        for (int x = 0; x < boardSize.width(); x++) {
-            Arrays.fill(board[x], CELL_EMPTY);
-        }
+    private final CellChangeCallback cellChangeCallback;
+    private final GameStatusChangeCallback gameStatusChangeCallback;
+
+    public Board(
+            GameType gameType,
+            CellChangeCallback cellChangeCallback,
+            GameStatusChangeCallback gameStatusChangeCallback
+    ) {
+        this.cellChangeCallback = cellChangeCallback;
+        this.gameStatusChangeCallback = gameStatusChangeCallback;
+
+        width = gameType.getWidth();
+        height = gameType.getHeight();
+        size = width * height;
+        mineCount = gameType.getMines();
+
+        board = new int[size];
+        remainingMines = mineCount;
+
+        Arrays.fill(board, CELL_EMPTY);
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public int getValue(int x) {
+        return board[x];
+    }
+
+    public int getRemainingMines() {
+        return remainingMines;
+    }
+
+    public GameStatus getGameStatus() {
+        return gameStatus;
     }
 
     /**
@@ -44,168 +90,115 @@ public class Board {
      *
      * @param center center of the free area
      */
-    private void initialize(Pos center) {
-        var cleanArea = getSurroundingArea(center, true);
+    private void initialize(int center) {
+        var cleanArea = getSurroundingArea(center, width, size);
 
-        for (int i = 0; i < boardSize.mineCount(); i++) {
+        for (int i = 0; i < mineCount; i++) {
             while (true) {
-                var pos = new Pos(
-                        RANDOM.nextInt(boardSize.width()),
-                        RANDOM.nextInt(boardSize.height())
-                );
-                if (hasMine(pos) || cleanArea.contains(pos)) {
+                var x = RANDOM.nextInt(size);
+                if (hasMine(x) || cleanArea.contains(x)) {
                     continue;
                 }
 
-                board[pos.x()][pos.y()] = hasFlag(pos)? CELL_MINE_FLAG : CELL_MINE;
+                board[x] = hasFlag(x) ? CELL_MINE_FLAG : CELL_MINE;
                 break;
             }
         }
     }
 
-    private List<Pos> getSurroundingArea(Pos center, boolean includeCenter) {
-        var area = new ArrayList<Pos>(9);
-        for (int x = max(0, center.x() - 1); x <= min(center.x() + 1, boardSize.width() - 1); x++) {
-            for (int y = max(0, center.y() - 1); y <= min(center.y() + 1, boardSize.height() - 1); y++) {
-                if (!includeCenter && x == center.x() && y == center.y()) {
-                    continue;
-                }
-                area.add(new Pos(x, y));
-            }
-        }
-        return area;
-    }
-
-    private boolean hasMine(Pos pos) {
-        var value = getValue(pos);
+    private boolean hasMine(int x) {
+        var value = board[x];
         return value == CELL_MINE || value == CELL_MINE_FLAG;
     }
 
-    private boolean hasFlag(Pos pos) {
-        var value = getValue(pos);
+    private boolean hasFlag(int x) {
+        var value = board[x];
         return value == CELL_EMPTY_FLAG || value == CELL_MINE_FLAG;
     }
 
-    public int getWidth() {
-        return boardSize.width();
-    }
-
-    public int getHeight() {
-        return boardSize.height();
-    }
-
-    public int getValue(int x, int y) {
-        return board[x][y];
-    }
-
-    public int getValue(Pos pos) {
-        return getValue(pos.x(), pos.y());
-    }
-
-    public int getRemainingMines() {
-        return remainingMines;
-    }
-
-    public HitResult toggleFlag(Pos coords) {
-        var value = getValue(coords);
+    public void toggleFlag(int x) {
+        var value = board[x];
         if (value > MAX_MINES) {
-            board[coords.x()][coords.y()] = value ^ FLAG_MASK;
+            board[x] = value ^ FLAG_MASK;
+            cellChangeCallback.onCellChanged(x, board[x]);
 
-            if (hasFlag(coords)) {
+            if (hasFlag(x)) {
                 remainingMines--;
             } else {
                 remainingMines++;
             }
 
-            return new HitResult(
-                    false,
-                    gameStatus == GameStatus.INITIAL? GameStatus.INITIAL : checkForGameStatus(),
-                    0
-            );
-        } else {
-            return new HitResult(true);
+            if (gameStatus != GameStatus.INITIAL) {
+                var newStatus = checkForGameStatus();
+                if (newStatus != gameStatus) {
+                    gameStatus = newStatus;
+                    gameStatusChangeCallback.onGameStatusChanged(x, newStatus);
+                }
+            }
         }
     }
 
-    public HitResult calculateHit(Pos pos) {
-        var value = getValue(pos);
+    public void processHit(int x) {
+        var value = board[x];
 
         if (value <= MAX_MINES || value == CELL_MINE_FLAG || value == CELL_EMPTY_FLAG) {
-            return new HitResult(true);
+            return;
         }
 
         if (gameStatus == GameStatus.INITIAL) {
-            initialize(pos);
+            initialize(x);
             gameStatus = GameStatus.IN_PROGRESS;
+            gameStatusChangeCallback.onGameStatusChanged(x, gameStatus);
         }
 
-        if (getValue(pos) == CELL_MINE) {
-            return new HitResult(GameStatus.FAILURE);
+        if (board[x] == CELL_MINE) {
+            gameStatus = GameStatus.FAILURE;
+            gameStatusChangeCallback.onGameStatusChanged(x, gameStatus);
+            return;
         }
 
-        var count = countMines(pos);
+        countMines(x);
         remainingMines = countRemainingMines();
-        return new HitResult(false, checkForGameStatus(), count);
+
+        var newStatus = checkForGameStatus();
+        if (newStatus != gameStatus) {
+            gameStatus = newStatus;
+            gameStatusChangeCallback.onGameStatusChanged(x, newStatus);
+        }
     }
 
-    private int countMines(Pos pos) {
-        var neighbours = getNeighbours(pos);
+    private void countMines(int x) {
+        var neighbours = getNeighbours(x, width, size, board);
 
         var mineCount = (int) neighbours.stream()
                 .map(this::getValue)
                 .filter(v -> v == CELL_MINE || v == CELL_MINE_FLAG)
                 .count();
-        board[pos.x()][pos.y()] = mineCount;
-        if (mineCount > 0) {
-            return mineCount;
-        } else {
+        board[x] = mineCount;
+        cellChangeCallback.onCellChanged(x, mineCount);
+        if (mineCount == 0) {
             for (var neighbour : neighbours) {
                 countMines(neighbour);
             }
-            return 0;
         }
-    }
-
-    private List<Pos> getNeighbours(Pos center) {
-        var result = new ArrayList<Pos>(8);
-
-        for (int x = max(0, center.x() - 1); x <= min(center.x() + 1, boardSize.width() - 1); x++) {
-            for (int y = max(0, center.y() - 1); y <= min(center.y() + 1, boardSize.height() - 1); y++) {
-                if (x == center.x() && y == center.y()) {
-                    continue;
-                }
-
-                if (getValue(x, y) > MAX_MINES) {
-                    result.add(new Pos(x, y));
-                }
-            }
-        }
-
-        return result;
     }
 
     private int countRemainingMines() {
         int flagCount = 0;
 
-        for (int x = 0; x < boardSize.width(); x++) {
-            for (int y = 0; y < boardSize.height(); y++) {
-                var value = getValue(x, y);
-                if (value == CELL_EMPTY_FLAG || value == CELL_MINE_FLAG) {
-                    flagCount++;
-                }
+        for (int value : board) {
+            if (value == CELL_EMPTY_FLAG || value == CELL_MINE_FLAG) {
+                flagCount++;
             }
         }
 
-        return boardSize.mineCount() - flagCount;
+        return mineCount - flagCount;
     }
 
     private GameStatus checkForGameStatus() {
-        for (int x = 0; x < boardSize.width(); x++) {
-            for (int y = 0; y < boardSize.height(); y++) {
-                var value = getValue(x, y);
-                if (value == CELL_EMPTY || value == CELL_EMPTY_FLAG || value == CELL_MINE) {
-                    return GameStatus.IN_PROGRESS;
-                }
+        for (int value : board) {
+            if (value == CELL_EMPTY || value == CELL_EMPTY_FLAG || value == CELL_MINE) {
+                return GameStatus.IN_PROGRESS;
             }
         }
         return GameStatus.SUCCESS;
