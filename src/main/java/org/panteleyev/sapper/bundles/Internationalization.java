@@ -15,6 +15,7 @@ public final class Internationalization {
     public static final String I18N_RESULTS = "I18N_RESULTS";
     public static final String I18N_SAPPER = "I18N_SAPPER";
     public static final String I18N_TIME = "I18N_TIME";
+    public static final String I18N_CREATE_DESKTOP_ENTRY = "I18N_CREATE_DESKTOP_ENTRY";
 
     private Internationalization() {
     }

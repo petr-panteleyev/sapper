@@ -15,7 +15,7 @@ public enum Picture {
     SAD_FACE("sad-face.png"),
     LAUGHING_FACE("laughing-face.png"),
     RED_FLAG("red-flag.png"),
-    CROSSED_RED_FLAG("crossed-red-flag.png");
+    BLACK_FLAG("black-flag.png");
 
     private final Image image;
 

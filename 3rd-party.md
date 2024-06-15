@@ -2,15 +2,15 @@
 
 https://www.iconarchive.com/show/gartoon-apps-icons-by-gartoon-team/mines-icon.html
 
-https://www.iconarchive.com/show/vista-map-markers-icons-by-icons-land/Map-Marker-Flag-1-Left-Pink-icon.html
+https://www.iconarchive.com/show/flat-style-icons-by-flaticonmaker/flag-icon.html
+
+https://www.iconarchive.com/show/picol-icons-by-picol/Flag-icon.html
 
 https://www.iconarchive.com/show/oxygen-icons-by-oxygen-icons.org/Emotes-face-smile-icon.html
 
 https://www.iconarchive.com/show/oxygen-icons-by-oxygen-icons.org/Emotes-face-sad-icon.html
 
 https://www.iconarchive.com/show/oxygen-icons-by-oxygen-icons.org/Emotes-face-smile-big-icon.html
-
-https://www.iconarchive.com/show/fluentui-emoji-3d-icons-by-microsoft/Cross-Mark-3d-icon.html
 
 # Font
 

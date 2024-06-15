@@ -7,6 +7,7 @@ package org.panteleyev.sapper.bundles;
 import java.util.ListResourceBundle;
 
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_ABOUT;
+import static org.panteleyev.sapper.bundles.Internationalization.I18N_CREATE_DESKTOP_ENTRY;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_DATE;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_EXIT;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_FILE;
@@ -20,7 +21,7 @@ import static org.panteleyev.sapper.bundles.Internationalization.I18N_TIME;
 public class UiBundle extends ListResourceBundle {
     @Override
     protected Object[][] getContents() {
-        return new Object[][] {
+        return new Object[][]{
                 {I18N_ABOUT, "About"},
                 {I18N_DATE, "Date"},
                 {I18N_EXIT, "Exit"},
@@ -31,6 +32,7 @@ public class UiBundle extends ListResourceBundle {
                 {I18N_RESULTS, "Results"},
                 {I18N_SAPPER, "Sapper"},
                 {I18N_TIME, "Time"},
+                {I18N_CREATE_DESKTOP_ENTRY, "Create Desktop Entry"},
         };
     }
 }

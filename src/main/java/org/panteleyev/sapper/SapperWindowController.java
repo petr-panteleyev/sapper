@@ -4,7 +4,7 @@
  */
 package org.panteleyev.sapper;
 
-import javafx.application.Platform;
+import javafx.event.Event;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -20,13 +20,20 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import org.panteleyev.freedesktop.Utility;
+import org.panteleyev.freedesktop.entry.DesktopEntryBuilder;
+import org.panteleyev.freedesktop.entry.DesktopEntryType;
+import org.panteleyev.freedesktop.menu.Category;
 import org.panteleyev.fx.Controller;
 import org.panteleyev.sapper.score.GameScore;
 import org.panteleyev.sapper.score.ScoreBoardDialog;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.panteleyev.freedesktop.Utility.isLinux;
+import static org.panteleyev.freedesktop.entry.DesktopEntryBuilder.localeString;
 import static org.panteleyev.fx.FxUtils.ELLIPSIS;
 import static org.panteleyev.fx.FxUtils.fxString;
 import static org.panteleyev.fx.MenuFactory.menu;
@@ -40,6 +47,7 @@ import static org.panteleyev.sapper.Constants.APP_TITLE;
 import static org.panteleyev.sapper.Constants.UI;
 import static org.panteleyev.sapper.GlobalContext.scoreboard;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_ABOUT;
+import static org.panteleyev.sapper.bundles.Internationalization.I18N_CREATE_DESKTOP_ENTRY;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_EXIT;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_FILE;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_GAME;
@@ -65,9 +73,9 @@ public class SapperWindowController extends Controller implements Board.CellChan
             Color.RED,
             Color.DARKBLUE,
             Color.BROWN,
-            Color.rgb(0xFE, 0xA7, 0x85),
-            Color.rgb(0xFF, 0xB6, 0xC1),
-            Color.rgb(0x8B, 0x45, 0x13)
+            Color.rgb(0x00, 0x80, 0x80),
+            Color.BLACK,
+            Color.GRAY
     };
 
     private final GameTimer timer = new GameTimer();
@@ -151,8 +159,8 @@ public class SapperWindowController extends Controller implements Board.CellChan
                 button.setMinSize(CELL_SIZE, CELL_SIZE);
                 button.setFocusTraversable(false);
                 button.setUserData(index);
-                button.setOnMouseReleased(this::onButtonPress);
-
+                button.addEventFilter(MouseEvent.MOUSE_CLICKED, Event::consume);
+                button.addEventFilter(MouseEvent.MOUSE_RELEASED, this::onButtonPress);
                 buttons[index++] = button;
                 grid.add(button, x, y);
             }
@@ -162,6 +170,9 @@ public class SapperWindowController extends Controller implements Board.CellChan
     private MenuBar createMainMenu() {
         return new MenuBar(
                 menu(fxString(UI, I18N_FILE),
+                        isLinux() ? menuItem(fxString(UI, I18N_CREATE_DESKTOP_ENTRY),
+                                _ -> onCreateDesktopEntry()) : null,
+                        isLinux() ? new SeparatorMenuItem() : null,
                         menuItem(fxString(UI, I18N_EXIT), _ -> onExit())
                 ),
                 menu(fxString(UI, I18N_GAME),
@@ -169,7 +180,8 @@ public class SapperWindowController extends Controller implements Board.CellChan
                         menuItem(GameType.MEDIUM.toString(), _ -> newGame(GameType.MEDIUM)),
                         menuItem(GameType.SMALL.toString(), _ -> newGame(GameType.SMALL)),
                         new SeparatorMenuItem(),
-                        menuItem(fxString(UI, I18N_RESULTS), _ -> new ScoreBoardDialog(this, GameType.BIG).showAndWait())
+                        menuItem(fxString(UI, I18N_RESULTS),
+                                _ -> new ScoreBoardDialog(this, gameType).showAndWait())
                 ),
                 menu(fxString(UI, I18N_HELP),
                         menuItem(fxString(UI, I18N_ABOUT) + " " + APP_TITLE + ELLIPSIS,
@@ -212,7 +224,7 @@ public class SapperWindowController extends Controller implements Board.CellChan
             } else {
                 if (value == CELL_EMPTY_FLAG) {
                     button.setText(null);
-                    button.setGraphic(Picture.imageView(Picture.CROSSED_RED_FLAG, IMAGE_SIZE, IMAGE_SIZE));
+                    button.setGraphic(Picture.imageView(Picture.BLACK_FLAG, IMAGE_SIZE, IMAGE_SIZE));
                 }
 
                 if (value == CELL_MINE) {
@@ -225,33 +237,31 @@ public class SapperWindowController extends Controller implements Board.CellChan
 
     @Override
     public void onCellChanged(int x, int newValue) {
-        Platform.runLater(() -> {
-            var button = buttons[x];
+        var button = buttons[x];
 
-            switch (newValue) {
-                case Board.CELL_EMPTY, Board.CELL_MINE -> {
-                    button.setText(null);
-                    button.setGraphic(null);
-                }
-                case Board.CELL_EMPTY_FLAG, Board.CELL_MINE_FLAG -> {
-                    button.setText(null);
-                    button.setGraphic(Picture.imageView(Picture.RED_FLAG, IMAGE_SIZE, IMAGE_SIZE));
-                }
-                case 0 -> {
-                    button.setText(null);
-                    button.setGraphic(null);
-                    button.setSelected(true);
-                    button.setDisable(true);
-                }
-                default -> {
-                    button.setText(Integer.toString(newValue));
-                    button.setGraphic(null);
-                    button.setTextFill(NUMBER_COLORS[newValue]);
-                    button.setSelected(true);
-                    button.setDisable(true);
-                }
+        switch (newValue) {
+            case Board.CELL_EMPTY, Board.CELL_MINE -> {
+                button.setText(null);
+                button.setGraphic(null);
             }
-        });
+            case Board.CELL_EMPTY_FLAG, Board.CELL_MINE_FLAG -> {
+                button.setText(null);
+                button.setGraphic(Picture.imageView(Picture.RED_FLAG, IMAGE_SIZE, IMAGE_SIZE));
+            }
+            case 0 -> {
+                button.setText(null);
+                button.setGraphic(null);
+                button.setSelected(true);
+                button.setDisable(true);
+            }
+            default -> {
+                button.setText(Integer.toString(newValue));
+                button.setGraphic(null);
+                button.setTextFill(NUMBER_COLORS[newValue]);
+                button.setSelected(true);
+                button.setDisable(true);
+            }
+        }
     }
 
     @Override
@@ -285,5 +295,27 @@ public class SapperWindowController extends Controller implements Board.CellChan
 
     private void onExit() {
         getStage().fireEvent(new WindowEvent(getStage(), WindowEvent.WINDOW_CLOSE_REQUEST));
+    }
+
+    private void onCreateDesktopEntry() {
+        if (!isLinux()) {
+            return;
+        }
+        Utility.getExecutablePath().ifPresent(command -> {
+            var execFile = new File(command);
+            var rootDir = execFile.getParentFile().getParentFile().getAbsolutePath();
+
+            var desktopEntry = new DesktopEntryBuilder(DesktopEntryType.APPLICATION)
+                    .version(DesktopEntryBuilder.VERSION_1_5)
+                    .name("Sapper")
+                    .name(localeString("Сапёр", "ru_RU"))
+                    .categories(List.of(Category.GAME, Category.JAVA))
+                    .comment("Sapper Game")
+                    .comment(localeString("Игра Сапёр", "ru_RU"))
+                    .exec("\"" + command + "\"")
+                    .icon(rootDir + "/lib/Sapper.png")
+                    .build();
+            desktopEntry.write("sapper");
+        });
     }
 }

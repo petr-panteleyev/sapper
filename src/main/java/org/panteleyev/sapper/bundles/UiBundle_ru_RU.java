@@ -7,6 +7,7 @@ package org.panteleyev.sapper.bundles;
 import java.util.ListResourceBundle;
 
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_ABOUT;
+import static org.panteleyev.sapper.bundles.Internationalization.I18N_CREATE_DESKTOP_ENTRY;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_DATE;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_EXIT;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_FILE;
@@ -20,7 +21,7 @@ import static org.panteleyev.sapper.bundles.Internationalization.I18N_TIME;
 public class UiBundle_ru_RU extends ListResourceBundle {
     @Override
     protected Object[][] getContents() {
-        return new Object[][] {
+        return new Object[][]{
                 {I18N_ABOUT, "О"},
                 {I18N_DATE, "Дата"},
                 {I18N_EXIT, "Выход"},
@@ -31,6 +32,7 @@ public class UiBundle_ru_RU extends ListResourceBundle {
                 {I18N_RESULTS, "Результаты"},
                 {I18N_SAPPER, "Сапёр"},
                 {I18N_TIME, "Время"},
+                {I18N_CREATE_DESKTOP_ENTRY, "Создать ярлык приложения"},
         };
     }
 }
