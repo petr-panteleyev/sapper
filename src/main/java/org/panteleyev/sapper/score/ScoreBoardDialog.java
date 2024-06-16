@@ -13,7 +13,7 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import org.panteleyev.fx.BaseDialog;
 import org.panteleyev.fx.Controller;
-import org.panteleyev.sapper.GameType;
+import org.panteleyev.sapper.game.GameType;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;

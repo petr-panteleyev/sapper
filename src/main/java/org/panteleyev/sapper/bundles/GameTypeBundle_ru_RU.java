@@ -4,7 +4,7 @@
  */
 package org.panteleyev.sapper.bundles;
 
-import org.panteleyev.sapper.GameType;
+import org.panteleyev.sapper.game.GameType;
 
 import java.util.ListResourceBundle;
 

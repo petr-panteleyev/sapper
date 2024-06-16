@@ -4,7 +4,7 @@
  */
 package org.panteleyev.sapper.score;
 
-import org.panteleyev.sapper.GameType;
+import org.panteleyev.sapper.game.GameType;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

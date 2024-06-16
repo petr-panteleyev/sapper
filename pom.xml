@@ -9,7 +9,7 @@
 
     <groupId>org.panteleyev</groupId>
     <artifactId>sapper</artifactId>
-    <version>24.6.3</version>
+    <version>24.6.4</version>
     <packaging>jar</packaging>
     <name>Sapper Game</name>
 

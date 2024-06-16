@@ -25,6 +25,10 @@ import org.panteleyev.freedesktop.entry.DesktopEntryBuilder;
 import org.panteleyev.freedesktop.entry.DesktopEntryType;
 import org.panteleyev.freedesktop.menu.Category;
 import org.panteleyev.fx.Controller;
+import org.panteleyev.sapper.game.Cell;
+import org.panteleyev.sapper.game.Game;
+import org.panteleyev.sapper.game.GameStatus;
+import org.panteleyev.sapper.game.GameType;
 import org.panteleyev.sapper.score.GameScore;
 import org.panteleyev.sapper.score.ScoreBoardDialog;
 
@@ -41,8 +45,6 @@ import static org.panteleyev.fx.MenuFactory.menuItem;
 import static org.panteleyev.fx.grid.ColumnConstraintsBuilder.columnConstraints;
 import static org.panteleyev.fx.grid.GridBuilder.gridPane;
 import static org.panteleyev.fx.grid.GridRowBuilder.gridRow;
-import static org.panteleyev.sapper.Board.CELL_EMPTY_FLAG;
-import static org.panteleyev.sapper.Board.CELL_MINE;
 import static org.panteleyev.sapper.Constants.APP_TITLE;
 import static org.panteleyev.sapper.Constants.UI;
 import static org.panteleyev.sapper.GlobalContext.scoreboard;
@@ -54,12 +56,12 @@ import static org.panteleyev.sapper.bundles.Internationalization.I18N_GAME;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_HELP;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_RESULTS;
 
-public class SapperWindowController extends Controller implements Board.CellChangeCallback, Board.GameStatusChangeCallback {
+public class SapperWindowController extends Controller implements Game.CellChangeCallback, Game.GameStatusChangeCallback {
     private static final int CELL_SIZE = 40;
     private static final int IMAGE_SIZE = 24;
 
     private GameType gameType = GameType.BIG;
-    private Board board;
+    private Game board;
     private ToggleButton[] buttons;
 
     private final Label remainingMinesLabel = new Label();
@@ -135,7 +137,7 @@ public class SapperWindowController extends Controller implements Board.CellChan
         controlButtonImageView.setImage(Picture.SMILING_FACE.getImage());
 
         this.gameType = gameType;
-        board = new Board(gameType, this, this);
+        board = new Game(gameType, this, this);
         initButtons();
 
         timer.stop();
@@ -222,12 +224,12 @@ public class SapperWindowController extends Controller implements Board.CellChan
                 button.setText("*");
                 button.setTextFill(Color.RED);
             } else {
-                if (value == CELL_EMPTY_FLAG) {
+                if (Cell.emptyWithFlag(value)) {
                     button.setText(null);
                     button.setGraphic(Picture.imageView(Picture.BLACK_FLAG, IMAGE_SIZE, IMAGE_SIZE));
                 }
 
-                if (value == CELL_MINE) {
+                if (Cell.mineNoFlag(value)) {
                     button.setText("*");
                     button.setGraphic(null);
                 }
@@ -239,28 +241,23 @@ public class SapperWindowController extends Controller implements Board.CellChan
     public void onCellChanged(int x, int newValue) {
         var button = buttons[x];
 
-        switch (newValue) {
-            case Board.CELL_EMPTY, Board.CELL_MINE -> {
+        if (Cell.flag(newValue)) {
+            button.setText(null);
+            button.setGraphic(Picture.imageView(Picture.RED_FLAG, IMAGE_SIZE, IMAGE_SIZE));
+        } else if (Cell.isExplored(newValue)) {
+            button.setGraphic(null);
+            button.setSelected(true);
+            button.setDisable(true);
+
+            if (newValue == 0) {
                 button.setText(null);
-                button.setGraphic(null);
-            }
-            case Board.CELL_EMPTY_FLAG, Board.CELL_MINE_FLAG -> {
-                button.setText(null);
-                button.setGraphic(Picture.imageView(Picture.RED_FLAG, IMAGE_SIZE, IMAGE_SIZE));
-            }
-            case 0 -> {
-                button.setText(null);
-                button.setGraphic(null);
-                button.setSelected(true);
-                button.setDisable(true);
-            }
-            default -> {
+            } else {
                 button.setText(Integer.toString(newValue));
-                button.setGraphic(null);
                 button.setTextFill(NUMBER_COLORS[newValue]);
-                button.setSelected(true);
-                button.setDisable(true);
             }
+        } else {
+            button.setText(null);
+            button.setGraphic(null);
         }
     }
 

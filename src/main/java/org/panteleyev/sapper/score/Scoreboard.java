@@ -5,7 +5,7 @@
 package org.panteleyev.sapper.score;
 
 import org.panteleyev.sapper.ApplicationFiles;
-import org.panteleyev.sapper.GameType;
+import org.panteleyev.sapper.game.GameType;
 import org.w3c.dom.Element;
 
 import java.io.InputStream;
@@ -30,6 +30,10 @@ public class Scoreboard {
 
     private static final String XML_ROOT = "Scores";
     private static final String XML_ELEMENT = "Score";
+
+    private static final String ATTR_TYPE = "type";
+    private static final String ATTR_DATE = "date";
+    private static final String ATTR_TIME = "time";
 
     private final Map<GameType, List<GameScore>> scores = new EnumMap<>(GameType.class);
 
@@ -75,9 +79,9 @@ public class Scoreboard {
 
         for (var score : flatScores) {
             var scoreNode = appendElement(root, XML_ELEMENT);
-            scoreNode.setAttribute("type", score.gameType().name());
-            scoreNode.setAttribute("date", Long.toString(score.date().toEpochDay()));
-            scoreNode.setAttribute("time", Long.toString(score.time().toSecondOfDay()));
+            scoreNode.setAttribute(ATTR_TYPE, score.gameType().name());
+            scoreNode.setAttribute(ATTR_DATE, Long.toString(score.date().toEpochDay()));
+            scoreNode.setAttribute(ATTR_TIME, Long.toString(score.time().toSecondOfDay()));
         }
 
         writeDocument(root.getOwnerDocument(), outputStream);
@@ -94,9 +98,9 @@ public class Scoreboard {
         var nodes = root.getElementsByTagName(XML_ELEMENT);
         for (int i = 0; i < nodes.getLength(); i++) {
             if (nodes.item(i) instanceof Element e) {
-                var type = GameType.valueOf(e.getAttribute("type"));
-                var epochDay = parseLong(e.getAttribute("date"));
-                var seconds = parseLong(e.getAttribute("time"));
+                var type = GameType.valueOf(e.getAttribute(ATTR_TYPE));
+                var epochDay = parseLong(e.getAttribute(ATTR_DATE));
+                var seconds = parseLong(e.getAttribute(ATTR_TIME));
 
                 var score = new GameScore(
                         type,
