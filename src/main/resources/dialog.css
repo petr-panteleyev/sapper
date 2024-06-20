@@ -9,3 +9,8 @@
 .tableHeader {
     -fx-font-weight: bold;
 }
+
+.gridPane {
+    -fx-hgap: 5;
+    -fx-vgap: 10;
+}

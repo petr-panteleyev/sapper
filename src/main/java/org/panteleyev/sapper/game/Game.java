@@ -14,32 +14,26 @@ public final class Game {
     }
 
     private GameStatus gameStatus = GameStatus.INITIAL;
-    private final Board board;
+    private final Board board = new Board();
 
     private final CellChangeCallback cellChangeCallback;
     private final GameStatusChangeCallback gameStatusChangeCallback;
 
     public Game(
-            GameType gameType,
             CellChangeCallback cellChangeCallback,
             GameStatusChangeCallback gameStatusChangeCallback
     ) {
         this.cellChangeCallback = cellChangeCallback;
         this.gameStatusChangeCallback = gameStatusChangeCallback;
+    }
 
-        board = new Board(gameType.getWidth(), gameType.getHeight(), gameType.getMines());
+    public void newGame(BoardSize boardSize) {
+        board.setup(boardSize);
+        gameStatus = GameStatus.INITIAL;
     }
 
     public int getSize() {
-        return board.getWidth() * board.getHeight();
-    }
-
-    public int getWidth() {
-        return board.getWidth();
-    }
-
-    public int getHeight() {
-        return board.getHeight();
+        return board.getSize();
     }
 
     public int getValue(int x) {

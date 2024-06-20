@@ -93,6 +93,6 @@ public class BoardTest {
     @ParameterizedTest
     @MethodSource("testGetUnopenedNeighboursArguments")
     public void testGetUnopenedNeighbours(int center, int width, int[] board, List<Integer> expected) {
-        assertEquals(expected, Board.getUnopenedNeighbours(center, width, board));
+        assertEquals(expected, Board.getUnopenedNeighbours(center, width, board, 20));
     }
 }

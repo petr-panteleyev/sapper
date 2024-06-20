@@ -4,6 +4,7 @@
  */
 package org.panteleyev.sapper.score;
 
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonType;
@@ -13,10 +14,12 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import org.panteleyev.fx.BaseDialog;
 import org.panteleyev.fx.Controller;
-import org.panteleyev.sapper.game.GameType;
+import org.panteleyev.fx.ToStringConverter;
+import org.panteleyev.sapper.game.BoardSize;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
+import java.util.function.Function;
 
 import static org.panteleyev.fx.BoxFactory.hBox;
 import static org.panteleyev.fx.FxUtils.COLON;
@@ -42,15 +45,17 @@ public class ScoreBoardDialog extends BaseDialog<Object> {
             label(fxString(UI, I18N_DATE))
     };
 
-    public ScoreBoardDialog(Controller owner, GameType gameType) {
+    public ScoreBoardDialog(Controller owner, BoardSize boardSize) {
         super(owner, ScoreBoardDialog.class.getResource("/dialog.css"));
         setTitle(fxString(UI, I18N_RESULTS));
 
         var root = new BorderPane();
 
-        var typeComboBox = comboBox(GameType.values());
+        var items = FXCollections.observableList(scoreboard().getBoardSizes())
+                .sorted(BoardSize.COMPARATOR.reversed());
+        var sizeComboBox = comboBox(items);
 
-        var toolBar = hBox(5, label(fxString(UI, I18N_MINEFIELD, COLON)), typeComboBox);
+        var toolBar = hBox(5, label(fxString(UI, I18N_MINEFIELD, COLON)), sizeComboBox);
         toolBar.setAlignment(Pos.CENTER_LEFT);
 
         root.setTop(toolBar);
@@ -61,13 +66,13 @@ public class ScoreBoardDialog extends BaseDialog<Object> {
 
         getDialogPane().setContent(root);
 
-        typeComboBox.getSelectionModel().selectedItemProperty().addListener((_, _, sel) -> onTypeSelected(sel));
-        typeComboBox.getSelectionModel().select(gameType);
+        sizeComboBox.getSelectionModel().selectedItemProperty().addListener((_, _, sel) -> onTypeSelected(sel));
+        sizeComboBox.getSelectionModel().select(boardSize);
 
         getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
     }
 
-    private void onTypeSelected(GameType selected) {
+    private void onTypeSelected(BoardSize selected) {
         var scores = scoreboard().getScores(selected).stream()
                 .sorted(Comparator.comparing(GameScore::time))
                 .toList();
@@ -90,7 +95,7 @@ public class ScoreBoardDialog extends BaseDialog<Object> {
             grid.addRow(index++, new Label(""), new Label(""), new Label(""));
         }
 
-        Stage stage = (Stage) getDialogPane().getScene().getWindow();
+        var stage = (Stage) getDialogPane().getScene().getWindow();
         stage.sizeToScene();
     }
 }

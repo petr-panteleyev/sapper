@@ -9,7 +9,9 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.ImageView;
@@ -25,10 +27,10 @@ import org.panteleyev.freedesktop.entry.DesktopEntryBuilder;
 import org.panteleyev.freedesktop.entry.DesktopEntryType;
 import org.panteleyev.freedesktop.menu.Category;
 import org.panteleyev.fx.Controller;
+import org.panteleyev.sapper.game.BoardSize;
 import org.panteleyev.sapper.game.Cell;
 import org.panteleyev.sapper.game.Game;
 import org.panteleyev.sapper.game.GameStatus;
-import org.panteleyev.sapper.game.GameType;
 import org.panteleyev.sapper.score.GameScore;
 import org.panteleyev.sapper.score.ScoreBoardDialog;
 
@@ -54,19 +56,27 @@ import static org.panteleyev.sapper.bundles.Internationalization.I18N_EXIT;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_FILE;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_GAME;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_HELP;
+import static org.panteleyev.sapper.bundles.Internationalization.I18N_NEW;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_RESULTS;
+import static org.panteleyev.sapper.bundles.Internationalization.I18N_USER_GAME;
+import static org.panteleyev.sapper.game.BoardSize.MAX_HEIGHT;
+import static org.panteleyev.sapper.game.BoardSize.MAX_WIDTH;
+import static org.panteleyev.sapper.game.BoardSize.STANDARD_SIZES;
 
 public class SapperWindowController extends Controller implements Game.CellChangeCallback, Game.GameStatusChangeCallback {
     private static final int CELL_SIZE = 40;
     private static final int IMAGE_SIZE = 24;
 
-    private GameType gameType = GameType.BIG;
-    private Game board;
-    private ToggleButton[] buttons;
+    private BoardSize boardSize = BoardSize.BIG;
+    private final Game game = new Game(this, this);
+    private final ToggleButton[] buttons = new ToggleButton[MAX_WIDTH * MAX_HEIGHT];
 
     private final Label remainingMinesLabel = new Label();
     private final ImageView controlButtonImageView;
     private final GridPane grid = new GridPane();
+
+    private final Menu customGameMenu = menu(fxString(UI, I18N_USER_GAME, ELLIPSIS));
+    private final MenuItem newCustomGameMenuItem = menuItem(fxString(UI, I18N_NEW, ELLIPSIS), _ -> onCustomGame());
 
     private static final Color[] NUMBER_COLORS = {
             null,
@@ -87,6 +97,19 @@ public class SapperWindowController extends Controller implements Game.CellChang
         stage.setResizable(false);
         stage.getIcons().add(Picture.ICON.getImage());
 
+        for (int x = 0; x < buttons.length; x++) {
+            var button = new ToggleButton();
+            button.getStyleClass().add("cellButton");
+            button.setPrefSize(CELL_SIZE, CELL_SIZE);
+            button.setMaxSize(CELL_SIZE, CELL_SIZE);
+            button.setMinSize(CELL_SIZE, CELL_SIZE);
+            button.setFocusTraversable(false);
+            button.setUserData(x);
+            button.addEventFilter(MouseEvent.MOUSE_CLICKED, Event::consume);
+            button.addEventFilter(MouseEvent.MOUSE_RELEASED, this::onButtonPress);
+            buttons[x] = button;
+        }
+
         var timerLabel = new Label();
         timerLabel.textProperty().bind(timer.timeStringProperty());
 
@@ -98,7 +121,7 @@ public class SapperWindowController extends Controller implements Game.CellChang
         controlButtonImageView.setFitHeight(48);
         var controlButton = new Button(null, controlButtonImageView);
         controlButton.setFocusTraversable(false);
-        controlButton.setOnAction(_ -> newGame(gameType));
+        controlButton.setOnAction(_ -> newGame(boardSize));
 
         var innerPane = new BorderPane(grid);
         var toolBar = gridPane(List.of(
@@ -125,7 +148,7 @@ public class SapperWindowController extends Controller implements Game.CellChang
 
         setupWindow(borderPane);
 
-        newGame(GameType.BIG);
+        newGame(BoardSize.BIG);
     }
 
     @Override
@@ -133,43 +156,43 @@ public class SapperWindowController extends Controller implements Game.CellChang
         return APP_TITLE;
     }
 
-    private void newGame(GameType gameType) {
+    private void newGame(BoardSize boardSize) {
         controlButtonImageView.setImage(Picture.SMILING_FACE.getImage());
 
-        this.gameType = gameType;
-        board = new Game(gameType, this, this);
+        this.boardSize = boardSize;
+        game.newGame(boardSize);
         initButtons();
 
         timer.stop();
         timer.reset();
 
-        remainingMinesLabel.setText(Integer.toString(gameType.getMines()));
+        remainingMinesLabel.setText(Integer.toString(boardSize.mines()));
         getStage().sizeToScene();
+    }
+
+    private void onCustomGame() {
+        new BoardSizeDialog(this).showAndWait().ifPresent(this::newGame);
     }
 
     private void initButtons() {
         grid.getChildren().clear();
-        buttons = new ToggleButton[board.getSize()];
 
         var index = 0;
-        for (var y = 0; y < board.getHeight(); y++) {
-            for (var x = 0; x < board.getWidth(); x++) {
-                var button = new ToggleButton();
-                button.getStyleClass().add("cellButton");
-                button.setPrefSize(CELL_SIZE, CELL_SIZE);
-                button.setMaxSize(CELL_SIZE, CELL_SIZE);
-                button.setMinSize(CELL_SIZE, CELL_SIZE);
-                button.setFocusTraversable(false);
-                button.setUserData(index);
-                button.addEventFilter(MouseEvent.MOUSE_CLICKED, Event::consume);
-                button.addEventFilter(MouseEvent.MOUSE_RELEASED, this::onButtonPress);
-                buttons[index++] = button;
+        for (var y = 0; y < boardSize.height(); y++) {
+            for (var x = 0; x < boardSize.width(); x++) {
+                var button = buttons[index++];
+                button.setDisable(false);
+                button.setSelected(false);
+                button.setText(null);
+                button.setGraphic(null);
+                button.setTextFill(Color.BLACK);
                 grid.add(button, x, y);
             }
         }
     }
 
     private MenuBar createMainMenu() {
+        buildCustomGamesMenu();
         return new MenuBar(
                 menu(fxString(UI, I18N_FILE),
                         isLinux() ? menuItem(fxString(UI, I18N_CREATE_DESKTOP_ENTRY),
@@ -178,17 +201,38 @@ public class SapperWindowController extends Controller implements Game.CellChang
                         menuItem(fxString(UI, I18N_EXIT), _ -> onExit())
                 ),
                 menu(fxString(UI, I18N_GAME),
-                        menuItem(GameType.BIG.toString(), _ -> newGame(GameType.BIG)),
-                        menuItem(GameType.MEDIUM.toString(), _ -> newGame(GameType.MEDIUM)),
-                        menuItem(GameType.SMALL.toString(), _ -> newGame(GameType.SMALL)),
+                        menuItem(BoardSize.BIG.toString(), _ -> newGame(BoardSize.BIG)),
+                        menuItem(BoardSize.MEDIUM.toString(), _ -> newGame(BoardSize.MEDIUM)),
+                        menuItem(BoardSize.SMALL.toString(), _ -> newGame(BoardSize.SMALL)),
+                        new SeparatorMenuItem(),
+                        customGameMenu,
                         new SeparatorMenuItem(),
                         menuItem(fxString(UI, I18N_RESULTS),
-                                _ -> new ScoreBoardDialog(this, gameType).showAndWait())
+                                _ -> new ScoreBoardDialog(this, boardSize).showAndWait())
                 ),
                 menu(fxString(UI, I18N_HELP),
                         menuItem(fxString(UI, I18N_ABOUT) + " " + APP_TITLE + ELLIPSIS,
                                 _ -> new AboutDialog(this).showAndWait()))
         );
+    }
+
+    private void buildCustomGamesMenu() {
+        customGameMenu.getItems().clear();
+        customGameMenu.getItems().add(newCustomGameMenuItem);
+
+        var customSizes = scoreboard().getBoardSizes().stream()
+                .filter(s -> !STANDARD_SIZES.contains(s))
+                .sorted(BoardSize.COMPARATOR.reversed())
+                .toList();
+
+        if (!customSizes.isEmpty()) {
+            customGameMenu.getItems().add(new SeparatorMenuItem());
+            for (var size : customSizes) {
+                customGameMenu.getItems().add(
+                        menuItem(size.toString(), _ -> newGame(size))
+                );
+            }
+        }
     }
 
     private void renderSuccess() {
@@ -200,14 +244,15 @@ public class SapperWindowController extends Controller implements Game.CellChang
 
         controlButtonImageView.setImage(Picture.LAUGHING_FACE.getImage());
         var gameScore = new GameScore(
-                gameType,
+                boardSize,
                 LocalDate.now(),
                 timer.getLocalTime()
         );
         var top = scoreboard().add(gameScore);
         scoreboard().save();
+        buildCustomGamesMenu();
         if (top) {
-            new ScoreBoardDialog(this, gameType).showAndWait();
+            new ScoreBoardDialog(this, boardSize).showAndWait();
         }
     }
 
@@ -215,8 +260,8 @@ public class SapperWindowController extends Controller implements Game.CellChang
         timer.stop();
         controlButtonImageView.setImage(Picture.SAD_FACE.getImage());
 
-        for (int x = 0; x < board.getSize(); x++) {
-            var value = board.getValue(x);
+        for (int x = 0; x < game.getSize(); x++) {
+            var value = game.getValue(x);
             var button = buttons[x];
             button.setDisable(true);
 
@@ -273,7 +318,7 @@ public class SapperWindowController extends Controller implements Game.CellChang
     private void onButtonPress(MouseEvent event) {
         event.consume();
 
-        if (board.getGameStatus().isFinal()) {
+        if (game.getGameStatus().isFinal()) {
             return;
         }
 
@@ -281,12 +326,12 @@ public class SapperWindowController extends Controller implements Game.CellChang
                 && button.getUserData() instanceof Integer hitPoint)
         {
             if (event.getButton() == MouseButton.SECONDARY) {
-                board.toggleFlag(hitPoint);
+                game.toggleFlag(hitPoint);
             } else {
-                board.processHit(hitPoint);
+                game.processHit(hitPoint);
             }
 
-            remainingMinesLabel.setText(Integer.toString(board.getRemainingMines()));
+            remainingMinesLabel.setText(Integer.toString(game.getRemainingMines()));
         }
     }
 

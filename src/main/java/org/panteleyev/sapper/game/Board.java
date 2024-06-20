@@ -11,35 +11,36 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import static org.panteleyev.sapper.game.BoardSize.MAX_HEIGHT;
+import static org.panteleyev.sapper.game.BoardSize.MAX_WIDTH;
+
 final class Board {
     private static final Random RANDOM = new Random(System.currentTimeMillis());
 
     private static final int MAX_MINES = 8;
 
-    private final int width;
-    private final int height;
-    private final int mines;
-    private final int[] board;
+    private final int[] board = new int[MAX_WIDTH * MAX_HEIGHT];
+
+    private int width;
+    private int size;
+    private int mines;
 
     private int remainingMines;
 
-    public Board(int width, int height, int mines) {
-        this.width = width;
-        this.height = height;
-        this.mines = mines;
+    public Board() {
+    }
 
-        this.board = new int[width * height];
+    public void setup(BoardSize boardSize) {
+        this.width = boardSize.width();
+        this.size = width * boardSize.height();
+        this.mines = boardSize.mines();
 
         remainingMines = mines;
         Arrays.fill(board, Cell.EMPTY);
     }
 
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
+    public int getSize() {
+        return size;
     }
 
     public int getRemainingMines() {
@@ -52,7 +53,6 @@ final class Board {
      * @param center center of the free area
      */
     void initialize(int center) {
-        var size = board.length;
         var cleanArea = getCleanArea(center, width, size);
 
         for (int i = 0; i < mines; i++) {
@@ -98,7 +98,8 @@ final class Board {
     }
 
     boolean hasUnexploredCells() {
-        for (int value : board) {
+        for (var x = 0; x < size; x++) {
+            var value = board[x];
             if (Cell.empty(value) || Cell.mineNoFlag(value)) {
                 return true;
             }
@@ -107,7 +108,7 @@ final class Board {
     }
 
     MineCountResult countMines(int x) {
-        var neighbours = getUnopenedNeighbours(x, width, board);
+        var neighbours = getUnopenedNeighbours(x, width, board, size);
         var mineCount = (int) neighbours.stream()
                 .map(this::getValue)
                 .filter(Cell::mine)
@@ -117,10 +118,10 @@ final class Board {
     }
 
     void countRemainingMines() {
-        remainingMines = mines - getFlagCount(board);
+        remainingMines = mines - getFlagCount(board, size);
     }
 
-    static List<Integer> getUnopenedNeighbours(int center, int width, int[] board) {
+    static List<Integer> getUnopenedNeighbours(int center, int width, int[] board, int size) {
         var result = new ArrayList<Integer>(8);
 
         var x = center % width;
@@ -130,7 +131,7 @@ final class Board {
         for (int w = -width; w <= width; w += width) {
             for (int add = lowerAdd; add <= upperAdd; add += 1) {
                 var pos = center + w + add;
-                if (pos == center || pos < 0 || pos >= board.length) {
+                if (pos == center || pos < 0 || pos >= size) {
                     continue;
                 }
 
@@ -161,10 +162,10 @@ final class Board {
         return area;
     }
 
-    private static int getFlagCount(int[] board) {
+    private static int getFlagCount(int[] board, int size) {
         var result = 0;
-        for (var value: board) {
-            result += value & Cell.FLAG_MASK;
+        for (var x = 0; x < size; x++) {
+            result += board[x] & Cell.FLAG_MASK;
         }
         return result >>> 6;
     }

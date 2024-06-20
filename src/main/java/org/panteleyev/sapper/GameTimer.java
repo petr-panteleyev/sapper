@@ -19,7 +19,6 @@ public class GameTimer {
 
     private Timer timer;
 
-    private long seconds;
     private LocalTime localTime;
 
     private final StringProperty timeStringProperty = new SimpleStringProperty("00:00");
@@ -33,9 +32,9 @@ public class GameTimer {
     }
 
     public void start() {
-        seconds = 0;
+        localTime = LocalTime.MIN;
 
-        timer= new Timer(true);
+        timer = new Timer(true);
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -52,8 +51,7 @@ public class GameTimer {
 
 
     public void handle() {
-        seconds++;
-        localTime = LocalTime.ofSecondOfDay(seconds);
+        localTime = localTime.plusSeconds(1);
         Platform.runLater(() -> timeStringProperty.set(FORMATTER.format(localTime)));
     }
 
