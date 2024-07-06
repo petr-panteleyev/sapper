@@ -9,7 +9,7 @@
 
     <groupId>org.panteleyev</groupId>
     <artifactId>sapper</artifactId>
-    <version>24.6.5</version>
+    <version>24.7.1</version>
     <packaging>jar</packaging>
     <name>Sapper Game</name>
 
@@ -246,7 +246,6 @@
                         <id>default-cli</id>
                         <configuration>
                             <options>
-                                <option>-Dpassword.file=${password.file}</option>
                                 <option>-Dsun.java2d.opengl=true</option>
                             </options>
                         </configuration>
@@ -256,7 +255,6 @@
                         <configuration>
                             <options>
                                 <option>-agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address}</option>
-                                <option>-Dpassword.file=${password.file}</option>
                                 <option>-Dsun.java2d.opengl=true</option>
                             </options>
                         </configuration>

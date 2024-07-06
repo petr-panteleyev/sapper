@@ -1,6 +1,6 @@
 # Sapper Game
 
-[![JDK](https://img.shields.io/badge/Java-JDK--22%2B-orange)](https://jdk.java.net/archive/)
+[![JDK](https://img.shields.io/badge/Java-JDK--22%2B-orange)](https://jdk.java.net/22/)
 [![GitHub](https://img.shields.io/github/license/petr-panteleyev/sapper)](LICENSE)
 
 Yet another Sapper game.

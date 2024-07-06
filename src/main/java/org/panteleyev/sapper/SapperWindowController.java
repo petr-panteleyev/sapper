@@ -50,6 +50,7 @@ import static org.panteleyev.fx.grid.GridRowBuilder.gridRow;
 import static org.panteleyev.sapper.Constants.APP_TITLE;
 import static org.panteleyev.sapper.Constants.UI;
 import static org.panteleyev.sapper.GlobalContext.scoreboard;
+import static org.panteleyev.sapper.GlobalContext.settings;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_ABOUT;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_CREATE_DESKTOP_ENTRY;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_EXIT;
@@ -148,7 +149,7 @@ public class SapperWindowController extends Controller implements Game.CellChang
 
         setupWindow(borderPane);
 
-        newGame(BoardSize.BIG);
+        newGame(settings().getLastBoardSize());
     }
 
     @Override
@@ -337,6 +338,14 @@ public class SapperWindowController extends Controller implements Game.CellChang
 
     private void onExit() {
         getStage().fireEvent(new WindowEvent(getStage(), WindowEvent.WINDOW_CLOSE_REQUEST));
+    }
+
+    @Override
+    protected void onWindowHiding() {
+        super.onWindowHiding();
+        settings().update(settings -> {
+            settings.setLastBoardSize(boardSize);
+        });
     }
 
     private void onCreateDesktopEntry() {

@@ -10,13 +10,14 @@ import javafx.stage.Stage;
 
 import static org.panteleyev.sapper.GlobalContext.files;
 import static org.panteleyev.sapper.GlobalContext.scoreboard;
+import static org.panteleyev.sapper.GlobalContext.settings;
 
 public class SapperApplication extends Application {
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) {
         files().initialize();
         scoreboard().load();
-//        settings().load();
+        settings().load();
 
         Font.loadFont(
                 SapperApplication.class.getResource("/fonts/mine-sweeper.ttf").toString(),

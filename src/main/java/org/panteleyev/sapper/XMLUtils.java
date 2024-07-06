@@ -1,5 +1,5 @@
 /*
- Copyright © 2022 Petr Panteleyev <petr@panteleyev.org>
+ Copyright © 2024 Petr Panteleyev <petr@panteleyev.org>
  SPDX-License-Identifier: BSD-2-Clause
  */
 package org.panteleyev.sapper;
@@ -25,6 +25,15 @@ public final class XMLUtils {
         var element = parent.getOwnerDocument().createElement(name);
         parent.appendChild(element);
         return element;
+    }
+
+    public static int getAttribute(Element element, String name, int defValue) {
+        var value = element.getAttribute(name);
+        if (value.isBlank()) {
+            return defValue;
+        } else {
+            return Integer.parseInt(value);
+        }
     }
 
     public static Element createDocument(String rootElementName) {
