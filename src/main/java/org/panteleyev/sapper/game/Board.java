@@ -99,8 +99,7 @@ final class Board {
 
     boolean hasUnexploredCells() {
         for (var x = 0; x < size; x++) {
-            var value = board[x];
-            if (Cell.empty(value) || Cell.mineNoFlag(value)) {
+            if (Cell.empty(board[x])) {
                 return true;
             }
         }

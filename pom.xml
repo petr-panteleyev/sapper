@@ -9,7 +9,7 @@
 
     <groupId>org.panteleyev</groupId>
     <artifactId>sapper</artifactId>
-    <version>24.7.1</version>
+    <version>24.10.1</version>
     <packaging>jar</packaging>
     <name>Sapper Game</name>
 
@@ -77,9 +77,6 @@
                         <configuration>
                             <type>APP_IMAGE</type>
                             <icon>icons/icon.png</icon>
-                            <javaOptions>
-                                <option>-Dsun.java2d.opengl=true</option>
-                            </javaOptions>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -103,7 +100,7 @@
         <javaFxPluginVersion>0.0.8</javaFxPluginVersion>
         <jpackageMavenPluginVersion>1.6.4</jpackageMavenPluginVersion>
         <!-- Dependencies -->
-        <javaFxVersion>22.0.1</javaFxVersion>
+        <javaFxVersion>23.0.1</javaFxVersion>
         <javaFxHelpersVersion>1.16.0</javaFxHelpersVersion>
         <javaFreeDesktopVersion>0.5.1</javaFreeDesktopVersion>
         <jUnitVersion>5.10.2</jUnitVersion>
@@ -113,11 +110,6 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
-            <version>${javaFxVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-media</artifactId>
             <version>${javaFxVersion}</version>
         </dependency>
         <dependency>
@@ -210,7 +202,6 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <includeScope>compile</includeScope>
                             <includeScope>runtime</includeScope>
                             <outputDirectory>target/jmods</outputDirectory>
                         </configuration>
@@ -244,18 +235,12 @@
                 <executions>
                     <execution>
                         <id>default-cli</id>
-                        <configuration>
-                            <options>
-                                <option>-Dsun.java2d.opengl=true</option>
-                            </options>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>debug</id>
                         <configuration>
                             <options>
                                 <option>-agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address}</option>
-                                <option>-Dsun.java2d.opengl=true</option>
                             </options>
                         </configuration>
                     </execution>
