@@ -4,7 +4,5 @@
  */
 package org.panteleyev.sapper;
 
-import java.util.List;
-
-public record MineCountResult(int value, List<Integer> neighbours) {
+public record MineCountResult(int value, int[] neighbours) {
 }

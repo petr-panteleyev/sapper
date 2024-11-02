@@ -12,3 +12,6 @@ dependency-reduced-pom.xml
 
 # Ignore Gradle project-specific cache directory
 .gradle
+
+# Netbeans
+nbactions.xml

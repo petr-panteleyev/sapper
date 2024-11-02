@@ -6,9 +6,7 @@ package org.panteleyev.sapper.game;
 
 import org.panteleyev.sapper.MineCountResult;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 
 import static org.panteleyev.sapper.game.BoardSize.MAX_HEIGHT;
@@ -16,6 +14,11 @@ import static org.panteleyev.sapper.game.BoardSize.MAX_WIDTH;
 
 final class Board {
     private static final Random RANDOM = new Random(System.currentTimeMillis());
+    private static final int[] CLEAN_AREA_INIT = new int[]{
+            Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE,
+            Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE,
+            Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE
+    };
 
     private static final int MAX_MINES = 8;
 
@@ -60,7 +63,7 @@ final class Board {
                 var x = RANDOM.nextInt(size);
                 int value = board[x];
 
-                if (Cell.mine(value) || cleanArea.contains(x)) {
+                if (Cell.mine(value) || Arrays.binarySearch(cleanArea, x) >= 0) {
                     continue;
                 }
 
@@ -108,10 +111,15 @@ final class Board {
 
     MineCountResult countMines(int x) {
         var neighbours = getUnopenedNeighbours(x, width, board, size);
-        var mineCount = (int) neighbours.stream()
-                .map(this::getValue)
-                .filter(Cell::mine)
-                .count();
+        var mineCount = 0;
+        for (var neighbour : neighbours) {
+            if (neighbour < 0) {
+                break;
+            }
+            if (Cell.mine(getValue(neighbour))) {
+                mineCount++;
+            }
+        }
         board[x] = mineCount;
         return new MineCountResult(mineCount, neighbours);
     }
@@ -120,13 +128,14 @@ final class Board {
         remainingMines = mines - getFlagCount(board, size);
     }
 
-    static List<Integer> getUnopenedNeighbours(int center, int width, int[] board, int size) {
-        var result = new ArrayList<Integer>(8);
+    static int[] getUnopenedNeighbours(int center, int width, int[] board, int size) {
+        var result = new int[8 + 1];
 
         var x = center % width;
         int lowerAdd = x == 0 ? 0 : -1;
-        int upperAdd = x == width -1 ? 0: 1;
+        int upperAdd = x == width - 1 ? 0 : 1;
 
+        var index = 0;
         for (int w = -width; w <= width; w += width) {
             for (int add = lowerAdd; add <= upperAdd; add += 1) {
                 var pos = center + w + add;
@@ -135,26 +144,27 @@ final class Board {
                 }
 
                 if (board[pos] > MAX_MINES) {
-                    result.add(pos);
+                    result[index++] = pos;
                 }
             }
         }
-
+        result[index] = -1;
         return result;
     }
 
-    static List<Integer> getCleanArea(int center, int width, int size) {
-        var area = new ArrayList<Integer>(9);
+    static int[] getCleanArea(int center, int width, int size) {
+        var area = Arrays.copyOf(CLEAN_AREA_INIT, CLEAN_AREA_INIT.length);
 
         var x = center % width;
         int lowerAdd = x == 0 ? 0 : -1;
-        int upperAdd = x == width -1 ? 0: 1;
+        int upperAdd = x == width - 1 ? 0 : 1;
 
+        var index = 0;
         for (int w = -width; w <= width; w += width) {
             for (int add = lowerAdd; add <= upperAdd; add += 1) {
                 var pos = center + w + add;
                 if (pos >= 0 && pos < size) {
-                    area.add(pos);
+                    area[index++] = pos;
                 }
             }
         }

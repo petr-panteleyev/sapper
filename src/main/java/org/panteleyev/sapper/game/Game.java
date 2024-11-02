@@ -96,6 +96,9 @@ public final class Game {
         cellChangeCallback.onCellChanged(x, result.value());
         if (result.value() == 0) {
             for (var neighbour : result.neighbours()) {
+                if (neighbour < 0) {
+                    break;
+                }
                 if (Cell.empty(board.getValue(neighbour))) {
                     countMines(neighbour);
                 }
