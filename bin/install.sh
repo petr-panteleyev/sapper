@@ -2,7 +2,7 @@
 
 if [ -z "$1" ]
 then
-  echo "Usage: sudo -E install.sh <install dir>"
+  echo "Usage: sudo install.sh <install dir>"
   exit
 fi
 

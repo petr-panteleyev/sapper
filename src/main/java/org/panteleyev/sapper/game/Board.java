@@ -8,12 +8,14 @@ import org.panteleyev.sapper.MineCountResult;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.stream.IntStream;
 
 import static org.panteleyev.sapper.game.BoardSize.MAX_HEIGHT;
 import static org.panteleyev.sapper.game.BoardSize.MAX_WIDTH;
 
 final class Board {
     private static final Random RANDOM = new Random(System.currentTimeMillis());
+
     private static final int[] CLEAN_AREA_INIT = new int[]{
             Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE,
             Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE,
@@ -58,19 +60,11 @@ final class Board {
     void initialize(int center) {
         var cleanArea = getCleanArea(center, width, size);
 
-        for (int i = 0; i < mines; i++) {
-            while (true) {
-                var x = RANDOM.nextInt(size);
-                int value = board[x];
-
-                if (Cell.mine(value) || Arrays.binarySearch(cleanArea, x) >= 0) {
-                    continue;
-                }
-
-                board[x] = Cell.putMine(value);
-                break;
-            }
-        }
+        RANDOM.ints(0, size)
+                .filter(x -> Arrays.binarySearch(cleanArea, x) < 0)
+                .distinct()
+                .limit(mines)
+                .forEach(x -> board[x] = Cell.MINE);
     }
 
     /**
@@ -101,12 +95,7 @@ final class Board {
     }
 
     boolean hasUnexploredCells() {
-        for (var x = 0; x < size; x++) {
-            if (Cell.empty(board[x])) {
-                return true;
-            }
-        }
-        return false;
+        return hasUnexploredCells(board, size);
     }
 
     MineCountResult countMines(int x) {
@@ -171,11 +160,11 @@ final class Board {
         return area;
     }
 
-    private static int getFlagCount(int[] board, int size) {
-        var result = 0;
-        for (var x = 0; x < size; x++) {
-            result += board[x] & Cell.FLAG_MASK;
-        }
-        return result >>> 6;
+    static boolean hasUnexploredCells(int[] board, int size) {
+        return IntStream.range(0, size).anyMatch(x -> Cell.empty(board[x]));
+    }
+
+    static int getFlagCount(int[] board, int size) {
+        return IntStream.range(0, size).reduce(0, (x, y) -> x + (board[y] & Cell.FLAG_MASK)) >>> 6;
     }
 }

@@ -12,6 +12,7 @@ import java.util.List;
 
 import static java.lang.Integer.MAX_VALUE;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class BoardTest {
     private static List<Arguments> testGetCleanAreaArguments() {
@@ -102,5 +103,51 @@ public class BoardTest {
     @MethodSource("testGetUnopenedNeighboursArguments")
     public void testGetUnopenedNeighbours(int center, int width, int[] board, int[] expected) {
         assertArrayEquals(expected, Board.getUnopenedNeighbours(center, width, board, 20));
+    }
+
+    private static List<Arguments> testHasUnexploredCellsArguments() {
+        return List.of(
+                Arguments.of(
+                        new int[] { Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY}, 3, true
+                ),
+                Arguments.of(
+                        new int[] { Cell.MINE, Cell.MINE, Cell.MINE, Cell.EMPTY}, 3, false
+                ),
+                Arguments.of(
+                        new int[] { Cell.MINE, Cell.MINE, Cell.EMPTY_WITH_FLAG, Cell.EMPTY}, 3, true
+                ),
+                Arguments.of(
+                        new int[] { Cell.MINE, Cell.MINE, 3, Cell.EMPTY}, 3, false
+                )
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("testHasUnexploredCellsArguments")
+    public void testHasUnexploredCells(int[] board, int size, boolean expected) {
+        assertEquals(expected, Board.hasUnexploredCells(board, size));
+    }
+
+    private static List<Arguments> testGetFlagCountArguments() {
+        return List.of(
+                Arguments.of(
+                    new int[] {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.MINE_WITH_FLAG}, 3, 0
+                ),
+                Arguments.of(
+                    new int[] {Cell.EMPTY, Cell.EMPTY, Cell.MINE_WITH_FLAG, Cell.MINE_WITH_FLAG}, 3, 1
+                ),
+                Arguments.of(
+                    new int[] {Cell.MINE_WITH_FLAG, Cell.EMPTY, Cell.EMPTY_WITH_FLAG, Cell.MINE_WITH_FLAG}, 3, 2
+                ),
+                Arguments.of(
+                    new int[] {Cell.MINE_WITH_FLAG, 2, Cell.EMPTY_WITH_FLAG, Cell.MINE_WITH_FLAG}, 3, 2
+                )
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("testGetFlagCountArguments")
+    public void testGetFlagCount(int[] board, int size, int expected) {
+        assertEquals(expected, Board.getFlagCount(board, size));
     }
 }
