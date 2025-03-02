@@ -1,5 +1,5 @@
 /*
- Copyright © 2024 Petr Panteleyev <petr@panteleyev.org>
+ Copyright © 2024-2025 Petr Panteleyev <petr@panteleyev.org>
  SPDX-License-Identifier: BSD-2-Clause
  */
 package org.panteleyev.sapper;
@@ -15,7 +15,7 @@ import static org.panteleyev.sapper.GlobalContext.settings;
 public class SapperApplication extends Application {
     @Override
     public void start(Stage stage) {
-        files().initialize();
+        files().initialize().throwIfFailure();
         scoreboard().load();
         settings().load();
 

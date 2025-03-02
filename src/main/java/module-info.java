@@ -7,6 +7,7 @@ module sapper {
 
     requires org.panteleyev.fx;
     requires org.panteleyev.freedesktop;
+    requires org.panteleyev.commons;
 
     exports org.panteleyev.sapper;
     exports org.panteleyev.sapper.score;

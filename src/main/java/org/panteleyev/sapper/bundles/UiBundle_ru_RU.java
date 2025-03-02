@@ -1,5 +1,5 @@
 /*
- Copyright © 2024 Petr Panteleyev <petr@panteleyev.org>
+ Copyright © 2024-2025 Petr Panteleyev <petr@panteleyev.org>
  SPDX-License-Identifier: BSD-2-Clause
  */
 package org.panteleyev.sapper.bundles;
@@ -27,7 +27,7 @@ public class UiBundle_ru_RU extends ListResourceBundle {
     @Override
     protected Object[][] getContents() {
         return new Object[][]{
-                {I18N_ABOUT, "О"},
+                {I18N_ABOUT, "О программе"},
                 {I18N_DATE, "Дата"},
                 {I18N_EXIT, "Выход"},
                 {I18N_FILE, "Файл"},

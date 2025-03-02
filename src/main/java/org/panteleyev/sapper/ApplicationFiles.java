@@ -1,15 +1,16 @@
 /*
- Copyright © 2024 Petr Panteleyev <petr@panteleyev.org>
+ Copyright © 2024-2025 Petr Panteleyev <petr@panteleyev.org>
  SPDX-License-Identifier: BSD-2-Clause
  */
 package org.panteleyev.sapper;
 
+import org.panteleyev.commons.functional.Result;
 import org.panteleyev.freedesktop.directory.XDGBaseDirectory;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UncheckedIOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -73,29 +74,36 @@ public class ApplicationFiles {
         }
     }
 
-    public void initialize() {
-        initDirectory(configDirectory, "Application");
-        initDirectory(dataDirectory, "Data");
-    }
-
-    public void write(AppFile appFile, Consumer<OutputStream> fileConsumer) {
-        try (var out = Files.newOutputStream(fileMap.get(appFile))) {
-            fileConsumer.accept(out);
-        } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
+    public Result<Void> initialize() {
+        try {
+            initDirectory(configDirectory, "Application");
+            initDirectory(dataDirectory, "Data");
+            return Result.empty();
+        } catch (Exception ex) {
+            return Result.failure(ex);
         }
     }
 
-    public void read(AppFile appFile, Consumer<InputStream> fileConsumer) {
+    public Result<Void> write(AppFile appFile, Consumer<OutputStream> fileConsumer) {
+        try (var out = Files.newOutputStream(fileMap.get(appFile))) {
+            fileConsumer.accept(out);
+            return Result.empty();
+        } catch (Exception ex) {
+            return Result.failure(ex);
+        }
+    }
+
+    public Result<Void> read(AppFile appFile, Consumer<InputStream> fileConsumer) {
         var file = fileMap.get(appFile);
         if (!Files.exists(file)) {
-            return;
+            return Result.failure(new FileNotFoundException());
         }
 
         try (var in = Files.newInputStream(file)) {
             fileConsumer.accept(in);
-        } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
+            return Result.empty();
+        } catch (Exception ex) {
+            return Result.failure(ex);
         }
     }
 

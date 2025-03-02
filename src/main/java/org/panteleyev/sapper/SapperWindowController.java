@@ -1,5 +1,5 @@
 /*
- Copyright © 2024 Petr Panteleyev <petr@panteleyev.org>
+ Copyright © 2024-2025 Petr Panteleyev <petr@panteleyev.org>
  SPDX-License-Identifier: BSD-2-Clause
  */
 package org.panteleyev.sapper;
@@ -212,8 +212,7 @@ public class SapperWindowController extends Controller implements Game.CellChang
                                 _ -> new ScoreBoardDialog(this, boardSize).showAndWait())
                 ),
                 menu(fxString(UI, I18N_HELP),
-                        menuItem(fxString(UI, I18N_ABOUT) + " " + APP_TITLE + ELLIPSIS,
-                                _ -> new AboutDialog(this).showAndWait()))
+                        menuItem(fxString(UI, I18N_ABOUT, ELLIPSIS), _ -> new AboutDialog(this).showAndWait()))
         );
     }
 
@@ -324,8 +323,7 @@ public class SapperWindowController extends Controller implements Game.CellChang
         }
 
         if (event.getSource() instanceof ToggleButton button
-                && button.getUserData() instanceof Integer hitPoint)
-        {
+                && button.getUserData() instanceof Integer hitPoint) {
             if (event.getButton() == MouseButton.SECONDARY) {
                 game.toggleFlag(hitPoint);
             } else {

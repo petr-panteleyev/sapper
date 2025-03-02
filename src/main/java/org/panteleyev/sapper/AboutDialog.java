@@ -1,5 +1,5 @@
 /*
- Copyright © 2024 Petr Panteleyev <petr@panteleyev.org>
+ Copyright © 2024-2025 Petr Panteleyev <petr@panteleyev.org>
  SPDX-License-Identifier: BSD-2-Clause
  */
 package org.panteleyev.sapper;
@@ -52,7 +52,7 @@ public class AboutDialog extends BaseDialog<Object> {
         setHeaderText(APP_TITLE);
         setGraphic(new ImageView(Picture.ICON.getImage()));
 
-        setTitle(fxString(UI, I18N_ABOUT) + " " + APP_TITLE);
+        setTitle(fxString(UI, I18N_ABOUT));
 
         var aboutLabel = label(APP_TITLE + " " + BUILD.version());
         aboutLabel.getStyleClass().add(STYLE_ABOUT_LABEL);
