@@ -17,7 +17,7 @@ cp -r $LAUNCH_DIR/../target/jlink/* $INSTALL_DIR
 
 echo "
 #!/bin/sh
-$INSTALL_DIR/bin/java --module sapper/org.panteleyev.sapper.SapperApplication
+$INSTALL_DIR/bin/java -XX:NewRatio=1 -Xms250m --module sapper/org.panteleyev.sapper.SapperApplication
 " > $INSTALL_DIR/sapper.sh
 
 chmod +x $INSTALL_DIR/sapper.sh
