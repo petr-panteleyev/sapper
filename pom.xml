@@ -261,6 +261,7 @@
                     <noHeaderFiles>true</noHeaderFiles>
                     <noManPages>true</noManPages>
                     <stripDebug>true</stripDebug>
+                    <generateCdsArchive>true</generateCdsArchive>
                 </configuration>
             </plugin>
             <plugin>
@@ -280,7 +281,8 @@
                     <removeDestination>true</removeDestination>
                     <javaOptions>
                         <javaOption>-XX:NewRatio=1</javaOption>
-                        <javaOption>-Xms250m</javaOption>
+                        <javaOption>-Xms100m</javaOption>
+                        <javaOption>-Xmx100m</javaOption>
                     </javaOptions>
                 </configuration>
             </plugin>
