@@ -1,5 +1,5 @@
 /*
- Copyright © 2024 Petr Panteleyev <petr@panteleyev.org>
+ Copyright © 2024-2025 Petr Panteleyev <petr@panteleyev.org>
  SPDX-License-Identifier: BSD-2-Clause
  */
 package org.panteleyev.sapper;
@@ -38,7 +38,7 @@ public class BoardSizeDialog extends BaseDialog<BoardSize> {
     private final Label mineLabel = label("1 - " + (MIN_WIDTH - 1) * (MIN_HEIGHT - 1));
 
     public BoardSizeDialog(Controller owner) {
-        super(owner, BoardSizeDialog.class.getResource("/dialog.css"));
+        super(owner, "/dialog.css");
         setTitle(fxString(UI, I18N_USER_GAME));
 
         widthSpinner.valueProperty().addListener((_, _, _) -> adjustMineSpinner());

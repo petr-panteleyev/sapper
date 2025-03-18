@@ -1,6 +1,6 @@
-# Sapper Game
+# Sapper
 
-![JDK](docs/java-23.svg)
+![JDK](docs/java-24.svg)
 [![License](docs/license.svg)](LICENSE)
 
 Yet another Sapper game.
@@ -18,7 +18,7 @@ Custom board can be from 8 x 8 up to 30 x 24 with maximum mines number equal to 
 
 ## Build
 
-* Set ```JAVA_HOME``` to JDK 23+.
+* Set ```JAVA_HOME``` to JDK 24+.
 * Execute:
 
 ```shell script
@@ -30,29 +30,24 @@ Application JAR and all dependencies will be placed in ```target/jmods```.
 ## Run
 
 ```shell script
-./mvnw javafx:run
+./mvnw exec:exec@run
 ```
 
 ## Custom Run-Time Image
 
 ```shell script
-./mvnw clean verify jlink:jlink
+./mvnw jlink:jlink
 ```
 
 Run-time image will be found in ```target/jlink``` directory.
 
-## Binary Installers
-
-To build binary installers perform the following steps:
-* On Microsoft Windows: install [WiX Toolset 3.x](https://github.com/wixtoolset/wix3/releases), add its binary 
-directory to ```PATH``` environment variable
-* Execute:
+## Binary Packages
 
 ```shell script
-./mvnw clean verify jpackage:jpackage
+./mvnw jpackage:jpackage
 ```
 
-Installation packages will be found in ```target/dist``` directory.
+Binary packages will be found in ```target/dist``` directory.
 
 ## Support
 

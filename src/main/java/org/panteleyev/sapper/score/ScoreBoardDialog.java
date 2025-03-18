@@ -1,5 +1,5 @@
 /*
- Copyright © 2024 Petr Panteleyev <petr@panteleyev.org>
+ Copyright © 2024-2025 Petr Panteleyev <petr@panteleyev.org>
  SPDX-License-Identifier: BSD-2-Clause
  */
 package org.panteleyev.sapper.score;
@@ -14,12 +14,10 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import org.panteleyev.fx.BaseDialog;
 import org.panteleyev.fx.Controller;
-import org.panteleyev.fx.ToStringConverter;
 import org.panteleyev.sapper.game.BoardSize;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
-import java.util.function.Function;
 
 import static org.panteleyev.fx.BoxFactory.hBox;
 import static org.panteleyev.fx.FxUtils.COLON;
@@ -46,7 +44,7 @@ public class ScoreBoardDialog extends BaseDialog<Object> {
     };
 
     public ScoreBoardDialog(Controller owner, BoardSize boardSize) {
-        super(owner, ScoreBoardDialog.class.getResource("/dialog.css"));
+        super(owner, "/dialog.css");
         setTitle(fxString(UI, I18N_RESULTS));
 
         var root = new BorderPane();

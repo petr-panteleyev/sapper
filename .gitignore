@@ -16,3 +16,4 @@ dependency-reduced-pom.xml
 
 # Netbeans
 nbactions.xml
+nb-configuration.xml
