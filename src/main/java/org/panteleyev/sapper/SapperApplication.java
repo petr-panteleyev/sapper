@@ -28,7 +28,6 @@ public class SapperApplication extends Application {
                 14
         );
 
-
         new SapperWindowController(stage);
         stage.show();
     }

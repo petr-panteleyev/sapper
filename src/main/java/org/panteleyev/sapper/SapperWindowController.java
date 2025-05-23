@@ -20,6 +20,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.panteleyev.freedesktop.Utility;
@@ -68,6 +70,14 @@ public class SapperWindowController extends Controller implements Game.CellChang
     private static final int CELL_SIZE = 40;
     private static final int IMAGE_SIZE = 24;
 
+    private static final String CELL_FONT_FAMILY = "Mine-Sweeper";
+    private static final double CELL_FONT_SIZE = 20;
+
+    private static final String IND_FONT_FAMILY = "Neat LCD";
+    private static final double IND_FONT_SIZE = 26;
+
+    private static final double CTRL_BUTTON_IMAGE_SIZE = 48;
+
     private BoardSize boardSize = BoardSize.BIG;
     private final Game game = new Game(this, this);
     private final ToggleButton[] buttons = new ToggleButton[MAX_WIDTH * MAX_HEIGHT];
@@ -94,13 +104,18 @@ public class SapperWindowController extends Controller implements Game.CellChang
     private final GameTimer timer = new GameTimer();
 
     public SapperWindowController(Stage stage) {
-        super(stage, "/main.css");
+        super(stage, null);
         stage.setResizable(false);
         stage.getIcons().add(Picture.ICON.getImage());
 
+        var cellFont = Font.font(CELL_FONT_FAMILY, FontWeight.BOLD, CELL_FONT_SIZE);
+        var insets = new Insets(0);
+
         for (int x = 0; x < buttons.length; x++) {
             var button = new ToggleButton();
-            button.getStyleClass().add("cellButton");
+            button.setFont(cellFont);
+            button.setPadding(insets);
+            button.setOpacity(1);
             button.setPrefSize(CELL_SIZE, CELL_SIZE);
             button.setMaxSize(CELL_SIZE, CELL_SIZE);
             button.setMinSize(CELL_SIZE, CELL_SIZE);
@@ -114,12 +129,17 @@ public class SapperWindowController extends Controller implements Game.CellChang
         var timerLabel = new Label();
         timerLabel.textProperty().bind(timer.timeStringProperty());
 
-        remainingMinesLabel.getStyleClass().add("remainingCount");
-        timerLabel.getStyleClass().add("remainingCount");
+        var indicatorFont = Font.font(IND_FONT_FAMILY, FontWeight.BOLD, IND_FONT_SIZE);
+
+        remainingMinesLabel.setFont(indicatorFont);
+        remainingMinesLabel.setTextFill(Color.RED);
+
+        timerLabel.setFont(indicatorFont);
+        timerLabel.setTextFill(Color.RED);
 
         controlButtonImageView = new ImageView(Picture.SMILING_FACE.getImage());
-        controlButtonImageView.setFitWidth(48);
-        controlButtonImageView.setFitHeight(48);
+        controlButtonImageView.setFitWidth(CTRL_BUTTON_IMAGE_SIZE);
+        controlButtonImageView.setFitHeight(CTRL_BUTTON_IMAGE_SIZE);
         var controlButton = new Button(null, controlButtonImageView);
         controlButton.setFocusTraversable(false);
         controlButton.setOnAction(_ -> newGame(boardSize));
@@ -150,6 +170,7 @@ public class SapperWindowController extends Controller implements Game.CellChang
         setupWindow(borderPane);
 
         newGame(settings().getLastBoardSize());
+        stage.centerOnScreen();
     }
 
     @Override
