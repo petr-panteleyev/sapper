@@ -21,8 +21,6 @@ $INSTALL_DIR/bin/java \\
   -XX:NewRatio=1 \\
   -Xms100m \\
   -Xmx100m \\
-  -XX:+UnlockExperimentalVMOptions \\
-  -XX:+UseCompactObjectHeaders \\
   -XX:+AutoCreateSharedArchive \\
   -XX:SharedArchiveFile=\$TMP/sapper.jsa \\
   --enable-native-access=javafx.graphics \\
