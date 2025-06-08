@@ -92,11 +92,11 @@
         <appMainClass>org.panteleyev.sapper.SapperApplication</appMainClass>
         <timestamp>${maven.build.timestamp}</timestamp>
         <!-- Plugins -->
-        <mavenCleanPluginVersion>3.4.1</mavenCleanPluginVersion>
+        <mavenCleanPluginVersion>3.5.0</mavenCleanPluginVersion>
         <mavenResourcePluginVersion>3.3.1</mavenResourcePluginVersion>
         <mavenCompilerPluginVersion>3.14.0</mavenCompilerPluginVersion>
         <mavenJarPluginVersion>3.4.2</mavenJarPluginVersion>
-        <mavenSurefirePluginVersion>3.5.2</mavenSurefirePluginVersion>
+        <mavenSurefirePluginVersion>3.5.3</mavenSurefirePluginVersion>
         <mavenDependencyPluginVersion>3.8.1</mavenDependencyPluginVersion>
         <mavenExecPluginVersion>3.5.0</mavenExecPluginVersion>
         <jlinkMavenPluginVersion>1.1.1</jlinkMavenPluginVersion>
@@ -106,7 +106,7 @@
         <javaCommonsVersion>1.6.0</javaCommonsVersion>
         <javaFxHelpersVersion>1.20.0</javaFxHelpersVersion>
         <javaFreeDesktopVersion>0.5.1</javaFreeDesktopVersion>
-        <jUnitVersion>5.12.1</jUnitVersion>
+        <jUnitVersion>5.13.1</jUnitVersion>
     </properties>
 
     <dependencies>
