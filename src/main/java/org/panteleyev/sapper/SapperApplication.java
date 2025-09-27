@@ -1,5 +1,5 @@
 /*
- Copyright © 2024-2025 Petr Panteleyev <petr@panteleyev.org>
+ Copyright © 2024-2025 Petr Panteleyev
  SPDX-License-Identifier: BSD-2-Clause
  */
 package org.panteleyev.sapper;
@@ -32,7 +32,7 @@ public class SapperApplication extends Application {
         stage.show();
     }
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         launch(args);
     }
 }

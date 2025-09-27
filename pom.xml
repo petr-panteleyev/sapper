@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright © 2024-2025 Petr Panteleyev <petr@panteleyev.org>
+  Copyright © 2024-2025 Petr Panteleyev
   SPDX-License-Identifier: BSD-2-Clause
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -9,7 +9,7 @@
 
     <groupId>org.panteleyev</groupId>
     <artifactId>sapper</artifactId>
-    <version>25.5.1</version>
+    <version>25.9.1</version>
     <packaging>jar</packaging>
     <name>Sapper Game</name>
 
@@ -29,11 +29,7 @@
                         <version>${jpackageMavenPluginVersion}</version>
 
                         <configuration>
-                            <icon>icons/icon.ico</icon>
-                            <winMenu>true</winMenu>
-                            <winDirChooser>true</winDirChooser>
-                            <winUpgradeUuid>8d5d715d-5dcc-4b90-a415-425bba6aadb3</winUpgradeUuid>
-                            <winMenuGroup>panteleyev.org</winMenuGroup>
+                            <icon>${project.basedir}/icons/icon.ico</icon>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -54,7 +50,7 @@
                         <version>${jpackageMavenPluginVersion}</version>
 
                         <configuration>
-                            <icon>icons/icon.icns</icon>
+                            <icon>${project.basedir}/icons/icon.icns</icon>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -76,7 +72,7 @@
 
                         <configuration>
                             <type>APP_IMAGE</type>
-                            <icon>icons/icon.png</icon>
+                            <icon>${project.basedir}/icons/icon.png</icon>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -86,7 +82,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>24</maven.compiler.release>
+        <maven.compiler.release>25</maven.compiler.release>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
         <appModule>sapper</appModule>
         <appMainClass>org.panteleyev.sapper.SapperApplication</appMainClass>
@@ -96,15 +92,15 @@
         <mavenResourcePluginVersion>3.3.1</mavenResourcePluginVersion>
         <mavenCompilerPluginVersion>3.14.0</mavenCompilerPluginVersion>
         <mavenJarPluginVersion>3.4.2</mavenJarPluginVersion>
-        <mavenSurefirePluginVersion>3.5.3</mavenSurefirePluginVersion>
+        <mavenSurefirePluginVersion>3.5.4</mavenSurefirePluginVersion>
         <mavenDependencyPluginVersion>3.8.1</mavenDependencyPluginVersion>
         <mavenExecPluginVersion>3.5.0</mavenExecPluginVersion>
-        <jlinkMavenPluginVersion>1.1.1</jlinkMavenPluginVersion>
-        <jpackageMavenPluginVersion>1.6.6</jpackageMavenPluginVersion>
+        <jlinkMavenPluginVersion>1.2.0</jlinkMavenPluginVersion>
+        <jpackageMavenPluginVersion>1.7.1</jpackageMavenPluginVersion>
         <!-- Dependencies -->
-        <javaFxVersion>24.0.1</javaFxVersion>
+        <javaFxVersion>25</javaFxVersion>
         <javaCommonsVersion>1.6.0</javaCommonsVersion>
-        <javaFxHelpersVersion>1.20.0</javaFxHelpersVersion>
+        <javaFxHelpersVersion>1.21.0</javaFxHelpersVersion>
         <javaFreeDesktopVersion>0.5.1</javaFreeDesktopVersion>
         <jUnitVersion>5.13.1</jUnitVersion>
     </properties>
@@ -260,7 +256,7 @@
                     <noHeaderFiles>true</noHeaderFiles>
                     <noManPages>true</noManPages>
                     <stripDebug>true</stripDebug>
-                    <generateCdsArchive>true</generateCdsArchive>
+                    <generateCdsArchive>false</generateCdsArchive>
                 </configuration>
             </plugin>
             <plugin>
@@ -272,8 +268,8 @@
                     <appVersion>${project.version}</appVersion>
                     <vendor>panteleyev.org</vendor>
                     <module>${appModule}/${appMainClass}</module>
-                    <runtimeImage>target/jlink</runtimeImage>
-                    <destination>target/dist</destination>
+                    <runtimeImage>${project.build.directory}/jlink</runtimeImage>
+                    <destination>${project.build.directory}/dist</destination>
                     <removeDestination>true</removeDestination>
                     <javaOptions>
                         <javaOption>-XX:NewRatio=1</javaOption>
@@ -282,6 +278,11 @@
                         <javaOption>--enable-native-access=javafx.graphics</javaOption>
                         <javaOption>--sun-misc-unsafe-memory-access=allow</javaOption>
                     </javaOptions>
+                    <!-- Windows -->
+                    <winMenu>true</winMenu>
+                    <winDirChooser>true</winDirChooser>
+                    <winUpgradeUuid>8d5d715d-5dcc-4b90-a415-425bba6aadb3</winUpgradeUuid>
+                    <winMenuGroup>panteleyev.org</winMenuGroup>
                 </configuration>
             </plugin>
             <plugin>
@@ -302,6 +303,7 @@
                                 <argument>-XX:NewRatio=1</argument>
                                 <argument>-Xms100m</argument>
                                 <argument>-Xmx100m</argument>
+                                <argument>-XX:+UseCompactObjectHeaders</argument>
                                 <argument>--enable-native-access=javafx.graphics</argument>
                                 <argument>--sun-misc-unsafe-memory-access=allow</argument>
                                 <argument>--module-path</argument>
@@ -321,6 +323,7 @@
                                 <argument>-XX:NewRatio=1</argument>
                                 <argument>-Xms100m</argument>
                                 <argument>-Xmx100m</argument>
+                                <argument>-XX:+UseCompactObjectHeaders</argument>
                                 <argument>--enable-native-access=javafx.graphics</argument>
                                 <argument>--sun-misc-unsafe-memory-access=allow</argument>
                                 <!--suppress UnresolvedMavenProperty -->

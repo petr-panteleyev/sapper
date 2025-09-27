@@ -1,9 +1,9 @@
 # Build
 
-Build requires JDK 24+.
+Build requires JDK 25+.
 
 ```shell script
-export JAVA_HOME=/path/to/jdk24
+export JAVA_HOME=/path/to/jdk25
 
 ./mvnw clean verify
 ```
@@ -20,7 +20,7 @@ Application JAR and all dependencies will be placed in ```target/jmods```.
 
 ## Step 1: Custom Image
 
-Download and unpack [JavaFX JMODs distribution](https://jdk.java.net/javafx24/).
+Download and unpack [JavaFX JMODs distribution](https://jdk.java.net/javafx25/).
 
 ```shell
 export JAVAFX_JMODS=/path/to/javafx-jmods-{javafx-version}

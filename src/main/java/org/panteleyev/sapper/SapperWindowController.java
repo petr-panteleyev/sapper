@@ -1,5 +1,5 @@
 /*
- Copyright © 2024-2025 Petr Panteleyev <petr@panteleyev.org>
+ Copyright © 2024-2025 Petr Panteleyev
  SPDX-License-Identifier: BSD-2-Clause
  */
 package org.panteleyev.sapper;
@@ -362,9 +362,7 @@ public class SapperWindowController extends Controller implements Game.CellChang
     @Override
     protected void onWindowHiding() {
         super.onWindowHiding();
-        settings().update(settings -> {
-            settings.setLastBoardSize(boardSize);
-        });
+        settings().update(settings -> settings.setLastBoardSize(boardSize));
     }
 
     private void onCreateDesktopEntry() {
