@@ -212,19 +212,17 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--
-                Remove empty JavaFX jars to enable jlink
-            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>${mavenCleanPluginVersion}</version>
                 <executions>
                     <execution>
-                        <id>jfx</id>
+                        <id>clean-jfx</id>
                         <goals>
                             <goal>clean</goal>
                         </goals>
+                        <phase>package</phase>
                         <configuration>
                             <excludeDefaultDirectories>true</excludeDefaultDirectories>
                             <filesets>

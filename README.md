@@ -1,5 +1,9 @@
 # Sapper
 
+[![License](https://www.panteleyev.org/badges/license-bsd-2.svg)](LICENSE)
+[![JDK](https://www.panteleyev.org/badges/java-25.svg)](https://jdk.java.net/25/)
+[![JDK](https://www.panteleyev.org/badges/javafx-25.svg)](https://jdk.java.net/javafx25/)
+
 Yet another Sapper game.
 
 ![Big Board](docs/board_big.png)

@@ -1,6 +1,6 @@
 # Build
 
-Build requires JDK 25+.
+Build requires [JDK 25](https://jdk.java.net/25/).
 
 ```shell script
 export JAVA_HOME=/path/to/jdk25
@@ -25,7 +25,7 @@ Download and unpack [JavaFX JMODs distribution](https://jdk.java.net/javafx25/).
 ```shell
 export JAVAFX_JMODS=/path/to/javafx-jmods-{javafx-version}
 
-./mvnw -DskipTests=true clean verify clean:clean@jfx jlink:jlink
+./mvnw -DskipTests=true clean verify jlink:jlink
 ```
 
 Custom image will be found in ```target/jlink``` directory.
