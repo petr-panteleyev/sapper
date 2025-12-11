@@ -1,7 +1,5 @@
-/*
- Copyright © 2024-2025 Petr Panteleyev
- SPDX-License-Identifier: BSD-2-Clause
- */
+// Copyright © 2024-2025 Petr Panteleyev
+// SPDX-License-Identifier: BSD-2-Clause
 package org.panteleyev.sapper;
 
 import javafx.event.Event;
@@ -73,8 +71,8 @@ public class SapperWindowController extends Controller implements Game.CellChang
     private static final String CELL_FONT_FAMILY = "Mine-Sweeper";
     private static final double CELL_FONT_SIZE = 20;
 
-    private static final String IND_FONT_FAMILY = "Neat LCD";
-    private static final double IND_FONT_SIZE = 26;
+    private static final String IND_FONT_FAMILY = "Pixel LCD7";
+    private static final double IND_FONT_SIZE = 38;
 
     private static final double CTRL_BUTTON_IMAGE_SIZE = 48;
 

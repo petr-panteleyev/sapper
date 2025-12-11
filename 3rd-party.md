@@ -12,8 +12,7 @@ https://www.iconarchive.com/show/oxygen-icons-by-oxygen-icons.org/Emotes-face-sa
 
 https://www.iconarchive.com/show/oxygen-icons-by-oxygen-icons.org/Emotes-face-smile-big-icon.html
 
-# Font
+# Fonts
 
-https://fontstruct.com/fontstructions/show/1501665/mine-sweeper
-
-https://fontstruct.com/fontstructions/show/2168652/neat-lcd
+- [MINE-SWEEPER](https://fontstruct.com/fontstructions/show/1501665/mine-sweeper)
+- [Pixel LCD7](https://fonts-online.ru/fonts/pixel-lcd7)

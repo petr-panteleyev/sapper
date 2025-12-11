@@ -1,7 +1,5 @@
-/*
- Copyright © 2024-2025 Petr Panteleyev
- SPDX-License-Identifier: BSD-2-Clause
- */
+// Copyright © 2024-2025 Petr Panteleyev
+// SPDX-License-Identifier: BSD-2-Clause
 package org.panteleyev.sapper;
 
 import javafx.application.Application;
@@ -24,7 +22,7 @@ public class SapperApplication extends Application {
                 14
         );
         Font.loadFont(
-                SapperApplication.class.getResource("/fonts/neat-lcd.ttf").toString(),
+                SapperApplication.class.getResource("/fonts/Pixel-LCD-7.ttf").toString(),
                 14
         );
 
