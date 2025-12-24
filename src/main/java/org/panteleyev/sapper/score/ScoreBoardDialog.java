@@ -1,7 +1,5 @@
-/*
- Copyright © 2024-2025 Petr Panteleyev <petr@panteleyev.org>
- SPDX-License-Identifier: BSD-2-Clause
- */
+// Copyright © 2024-2025 Petr Panteleyev
+// SPDX-License-Identifier: BSD-2-Clause
 package org.panteleyev.sapper.score;
 
 import javafx.collections.FXCollections;
@@ -19,11 +17,11 @@ import org.panteleyev.sapper.game.BoardSize;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 
-import static org.panteleyev.fx.BoxFactory.hBox;
-import static org.panteleyev.fx.FxUtils.COLON;
-import static org.panteleyev.fx.FxUtils.fxString;
-import static org.panteleyev.fx.LabelFactory.label;
-import static org.panteleyev.fx.combobox.ComboBoxBuilder.comboBox;
+import static org.panteleyev.fx.factories.BoxFactory.hBox;
+import static org.panteleyev.fx.factories.ComboBoxFactory.comboBox;
+import static org.panteleyev.fx.factories.LabelFactory.label;
+import static org.panteleyev.fx.factories.StringFactory.COLON;
+import static org.panteleyev.fx.factories.StringFactory.string;
 import static org.panteleyev.sapper.Constants.UI;
 import static org.panteleyev.sapper.GlobalContext.scoreboard;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_DATE;
@@ -39,13 +37,13 @@ public class ScoreBoardDialog extends BaseDialog<Object> {
 
     private final Label[] gridHeaders = {
             new Label(""),
-            label(fxString(UI, I18N_TIME)),
-            label(fxString(UI, I18N_DATE))
+            label(string(UI, I18N_TIME)),
+            label(string(UI, I18N_DATE))
     };
 
     public ScoreBoardDialog(Controller owner, BoardSize boardSize) {
         super(owner, "/dialog.css");
-        setTitle(fxString(UI, I18N_RESULTS));
+        setTitle(string(UI, I18N_RESULTS));
 
         var root = new BorderPane();
 
@@ -53,7 +51,7 @@ public class ScoreBoardDialog extends BaseDialog<Object> {
                 .sorted(BoardSize.COMPARATOR.reversed());
         var sizeComboBox = comboBox(items);
 
-        var toolBar = hBox(5, label(fxString(UI, I18N_MINEFIELD, COLON)), sizeComboBox);
+        var toolBar = hBox(5, label(string(UI, I18N_MINEFIELD, COLON)), sizeComboBox);
         toolBar.setAlignment(Pos.CENTER_LEFT);
 
         root.setTop(toolBar);

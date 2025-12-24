@@ -1,7 +1,5 @@
-/*
- Copyright © 2024-2025 Petr Panteleyev <petr@panteleyev.org>
- SPDX-License-Identifier: BSD-2-Clause
- */
+// Copyright © 2024-2025 Petr Panteleyev
+// SPDX-License-Identifier: BSD-2-Clause
 package org.panteleyev.sapper;
 
 import javafx.scene.control.ButtonType;
@@ -12,15 +10,15 @@ import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import org.panteleyev.fx.BaseDialog;
 import org.panteleyev.fx.Controller;
-import org.panteleyev.fx.grid.GridRowBuilder;
 import org.panteleyev.sapper.game.BoardSize;
 
 import java.util.List;
 
-import static org.panteleyev.fx.FxUtils.COLON;
-import static org.panteleyev.fx.FxUtils.fxString;
-import static org.panteleyev.fx.LabelFactory.label;
-import static org.panteleyev.fx.grid.GridBuilder.gridPane;
+import static org.panteleyev.fx.factories.LabelFactory.label;
+import static org.panteleyev.fx.factories.StringFactory.COLON;
+import static org.panteleyev.fx.factories.StringFactory.string;
+import static org.panteleyev.fx.factories.grid.GridPaneFactory.gridPane;
+import static org.panteleyev.fx.factories.grid.GridRow.gridRow;
 import static org.panteleyev.sapper.Constants.UI;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_HEIGHT;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_MINES;
@@ -39,17 +37,17 @@ public class BoardSizeDialog extends BaseDialog<BoardSize> {
 
     public BoardSizeDialog(Controller owner) {
         super(owner, "/dialog.css");
-        setTitle(fxString(UI, I18N_USER_GAME));
+        setTitle(string(UI, I18N_USER_GAME));
 
         widthSpinner.valueProperty().addListener((_, _, _) -> adjustMineSpinner());
         heightSpinner.valueProperty().addListener((_, _, _) -> adjustMineSpinner());
 
         var grid = gridPane(List.of(
-                GridRowBuilder.gridRow(label(fxString(UI, I18N_WIDTH, COLON)), widthSpinner,
+                gridRow(label(string(UI, I18N_WIDTH, COLON)), widthSpinner,
                         label(MIN_WIDTH + " - " + MAX_WIDTH)),
-                GridRowBuilder.gridRow(label(fxString(UI, I18N_HEIGHT, COLON)), heightSpinner,
+                gridRow(label(string(UI, I18N_HEIGHT, COLON)), heightSpinner,
                         label(MIN_HEIGHT + " - " + MAX_HEIGHT)),
-                GridRowBuilder.gridRow(label(fxString(UI, I18N_MINES, COLON)), mineSpinner, mineLabel)
+                gridRow(label(string(UI, I18N_MINES, COLON)), mineSpinner, mineLabel)
         ));
         grid.getStyleClass().add("gridPane");
         grid.setMaxWidth(Double.MAX_VALUE);

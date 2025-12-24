@@ -1,7 +1,5 @@
-/*
- Copyright © 2024-2025 Petr Panteleyev <petr@panteleyev.org>
- SPDX-License-Identifier: BSD-2-Clause
- */
+// Copyright © 2024-2025 Petr Panteleyev
+// SPDX-License-Identifier: BSD-2-Clause
 package org.panteleyev.sapper;
 
 import javafx.scene.control.ButtonType;
@@ -15,9 +13,9 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
 
-import static org.panteleyev.fx.BoxFactory.vBox;
-import static org.panteleyev.fx.FxUtils.fxString;
-import static org.panteleyev.fx.LabelFactory.label;
+import static org.panteleyev.fx.factories.BoxFactory.vBox;
+import static org.panteleyev.fx.factories.LabelFactory.label;
+import static org.panteleyev.fx.factories.StringFactory.string;
 import static org.panteleyev.sapper.Constants.APP_TITLE;
 import static org.panteleyev.sapper.Constants.BUILD_INFO_BUNDLE;
 import static org.panteleyev.sapper.Constants.UI;
@@ -52,7 +50,7 @@ public class AboutDialog extends BaseDialog<Object> {
         setHeaderText(APP_TITLE);
         setGraphic(new ImageView(Picture.ICON.getImage()));
 
-        setTitle(fxString(UI, I18N_ABOUT));
+        setTitle(string(UI, I18N_ABOUT));
 
         var aboutLabel = label(APP_TITLE + " " + BUILD.version());
         aboutLabel.getStyleClass().add(STYLE_ABOUT_LABEL);
@@ -60,7 +58,7 @@ public class AboutDialog extends BaseDialog<Object> {
         var timestamp = ZonedDateTime.parse(BUILD.timestamp(), TIMESTAMP_PARSER)
                 .withZoneSameInstant(LOCAL_TIME_ZONE);
 
-        var vBox = vBox(BIG_SPACING,
+        var box = vBox(BIG_SPACING,
                 vBox(SMALL_SPACING,
                         aboutLabel,
                         label("Built on " + LOCAL_FORMATTER.format(timestamp))
@@ -74,8 +72,7 @@ public class AboutDialog extends BaseDialog<Object> {
                 )
         );
 
-        getDialogPane().setContent(vBox);
+        getDialogPane().setContent(box);
         getDialogPane().getButtonTypes().addAll(ButtonType.OK);
-
     }
 }

@@ -40,13 +40,14 @@ import java.util.List;
 
 import static org.panteleyev.freedesktop.Utility.isLinux;
 import static org.panteleyev.freedesktop.entry.DesktopEntryBuilder.localeString;
-import static org.panteleyev.fx.FxUtils.ELLIPSIS;
-import static org.panteleyev.fx.FxUtils.fxString;
-import static org.panteleyev.fx.MenuFactory.menu;
-import static org.panteleyev.fx.MenuFactory.menuItem;
-import static org.panteleyev.fx.grid.ColumnConstraintsBuilder.columnConstraints;
-import static org.panteleyev.fx.grid.GridBuilder.gridPane;
-import static org.panteleyev.fx.grid.GridRowBuilder.gridRow;
+import static org.panteleyev.functional.Scope.apply;
+import static org.panteleyev.fx.factories.MenuFactory.menu;
+import static org.panteleyev.fx.factories.MenuFactory.menuItem;
+import static org.panteleyev.fx.factories.StringFactory.ELLIPSIS;
+import static org.panteleyev.fx.factories.StringFactory.string;
+import static org.panteleyev.fx.factories.grid.ColumnConstraintsFactory.columnConstraints;
+import static org.panteleyev.fx.factories.grid.GridPaneFactory.gridPane;
+import static org.panteleyev.fx.factories.grid.GridRow.gridRow;
 import static org.panteleyev.sapper.Constants.APP_TITLE;
 import static org.panteleyev.sapper.Constants.UI;
 import static org.panteleyev.sapper.GlobalContext.scoreboard;
@@ -84,8 +85,9 @@ public class SapperWindowController extends Controller implements Game.CellChang
     private final ImageView controlButtonImageView;
     private final GridPane grid = new GridPane();
 
-    private final Menu customGameMenu = menu(fxString(UI, I18N_USER_GAME, ELLIPSIS));
-    private final MenuItem newCustomGameMenuItem = menuItem(fxString(UI, I18N_NEW, ELLIPSIS), _ -> onCustomGame());
+    private final Menu customGameMenu = menu(string(UI, I18N_USER_GAME, ELLIPSIS));
+    private final MenuItem newCustomGameMenuItem = apply(menuItem(string(UI, I18N_NEW, ELLIPSIS)),
+            item -> item.setOnAction(_ -> onCustomGame()));
 
     private static final Color[] NUMBER_COLORS = {
             null,
@@ -143,18 +145,23 @@ public class SapperWindowController extends Controller implements Game.CellChang
         controlButton.setOnAction(_ -> newGame(boardSize));
 
         var innerPane = new BorderPane(grid);
-        var toolBar = gridPane(List.of(
-                gridRow(remainingMinesLabel, controlButton, timerLabel)
-        ), b -> b.withConstraints(
+        var toolBar = gridPane(
+                List.of(gridRow(remainingMinesLabel, controlButton, timerLabel)),
                 List.of(
-                        columnConstraints(ccb -> ccb.withPercentWidth(33.33)
-                                .withHalignment(HPos.LEFT)),
-                        columnConstraints(ccb -> ccb.withPercentWidth(33.33)
-                                .withHalignment(HPos.CENTER)),
-                        columnConstraints(ccb -> ccb.withPercentWidth(33.33)
-                                .withHalignment(HPos.RIGHT))
+                        apply(columnConstraints(), cc -> {
+                            cc.setPercentWidth(33.33);
+                            cc.setHalignment(HPos.LEFT);
+                        }),
+                        apply(columnConstraints(), cc -> {
+                            cc.setPercentWidth(33.33);
+                            cc.setHalignment(HPos.CENTER);
+                        }),
+                        apply(columnConstraints(), cc -> {
+                            cc.setPercentWidth(33.33);
+                            cc.setHalignment(HPos.RIGHT);
+                        })
                 )
-        ));
+        );
 
         remainingMinesLabel.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         controlButton.setAlignment(javafx.geometry.Pos.CENTER);
@@ -214,24 +221,27 @@ public class SapperWindowController extends Controller implements Game.CellChang
     private MenuBar createMainMenu() {
         buildCustomGamesMenu();
         return new MenuBar(
-                menu(fxString(UI, I18N_FILE),
-                        isLinux() ? menuItem(fxString(UI, I18N_CREATE_DESKTOP_ENTRY),
-                                _ -> onCreateDesktopEntry()) : null,
+                menu(string(UI, I18N_FILE),
+                        isLinux() ? apply(menuItem(string(UI, I18N_CREATE_DESKTOP_ENTRY)),
+                                mi -> mi.setOnAction(_ -> onCreateDesktopEntry())) : null,
                         isLinux() ? new SeparatorMenuItem() : null,
-                        menuItem(fxString(UI, I18N_EXIT), _ -> onExit())
+                        apply(menuItem(string(UI, I18N_EXIT)), mi -> mi.setOnAction(_ -> onExit()))
                 ),
-                menu(fxString(UI, I18N_GAME),
-                        menuItem(BoardSize.BIG.toString(), _ -> newGame(BoardSize.BIG)),
-                        menuItem(BoardSize.MEDIUM.toString(), _ -> newGame(BoardSize.MEDIUM)),
-                        menuItem(BoardSize.SMALL.toString(), _ -> newGame(BoardSize.SMALL)),
+                menu(string(UI, I18N_GAME),
+                        apply(menuItem(BoardSize.BIG.toString()), mi -> mi.setOnAction(_ -> newGame(BoardSize.BIG))),
+                        apply(menuItem(BoardSize.MEDIUM.toString()),
+                                mi -> mi.setOnAction(_ -> newGame(BoardSize.MEDIUM))),
+                        apply(menuItem(BoardSize.SMALL.toString()),
+                                mi -> mi.setOnAction(_ -> newGame(BoardSize.SMALL))),
                         new SeparatorMenuItem(),
                         customGameMenu,
                         new SeparatorMenuItem(),
-                        menuItem(fxString(UI, I18N_RESULTS),
-                                _ -> new ScoreBoardDialog(this, boardSize).showAndWait())
+                        apply(menuItem(string(UI, I18N_RESULTS)),
+                                mi -> mi.setOnAction(_ -> new ScoreBoardDialog(this, boardSize).showAndWait()))
                 ),
-                menu(fxString(UI, I18N_HELP),
-                        menuItem(fxString(UI, I18N_ABOUT, ELLIPSIS), _ -> new AboutDialog(this).showAndWait()))
+                menu(string(UI, I18N_HELP),
+                        apply(menuItem(string(UI, I18N_ABOUT, ELLIPSIS)),
+                                mi -> mi.setOnAction(_ -> new AboutDialog(this).showAndWait())))
         );
     }
 
@@ -248,7 +258,7 @@ public class SapperWindowController extends Controller implements Game.CellChang
             customGameMenu.getItems().add(new SeparatorMenuItem());
             for (var size : customSizes) {
                 customGameMenu.getItems().add(
-                        menuItem(size.toString(), _ -> newGame(size))
+                        apply(menuItem(size.toString()), mi -> mi.setOnAction(_ -> newGame(size)))
                 );
             }
         }
