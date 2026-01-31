@@ -1,4 +1,4 @@
-// Copyright © 2024-2025 Petr Panteleyev
+// Copyright © 2024-2026 Petr Panteleyev
 // SPDX-License-Identifier: BSD-2-Clause
 package org.panteleyev.sapper;
 
@@ -20,6 +20,7 @@ import static org.panteleyev.sapper.Constants.APP_TITLE;
 import static org.panteleyev.sapper.Constants.BUILD_INFO_BUNDLE;
 import static org.panteleyev.sapper.Constants.UI;
 import static org.panteleyev.sapper.Styles.BIG_SPACING;
+import static org.panteleyev.sapper.Styles.ABOUT_DIALOG_STYLE_SHEET;
 import static org.panteleyev.sapper.Styles.SMALL_SPACING;
 import static org.panteleyev.sapper.Styles.STYLE_ABOUT_LABEL;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_ABOUT;
@@ -45,7 +46,7 @@ public class AboutDialog extends BaseDialog<Object> {
     private static final DateTimeFormatter LOCAL_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
     public AboutDialog(Controller owner) {
-        super(owner, "/about-dialog.css");
+        super(owner, ABOUT_DIALOG_STYLE_SHEET);
 
         setHeaderText(APP_TITLE);
         setGraphic(new ImageView(Picture.ICON.getImage()));

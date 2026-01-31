@@ -9,7 +9,7 @@
 
     <groupId>org.panteleyev</groupId>
     <artifactId>sapper</artifactId>
-    <version>25.12.2</version>
+    <version>26.1.1</version>
     <packaging>jar</packaging>
     <name>Sapper Game</name>
 
@@ -98,9 +98,9 @@
         <jlinkMavenPluginVersion>1.2.0</jlinkMavenPluginVersion>
         <jpackageMavenPluginVersion>1.7.1</jpackageMavenPluginVersion>
         <!-- Dependencies -->
-        <javaFxVersion>25.0.1</javaFxVersion>
+        <javaFxVersion>25.0.2</javaFxVersion>
         <javaCommonsVersion>1.6.0</javaCommonsVersion>
-        <javaFxHelpersVersion>2.1.0</javaFxHelpersVersion>
+        <javaFxHelpersVersion>2.3.0</javaFxHelpersVersion>
         <javaFreeDesktopVersion>0.5.1</javaFreeDesktopVersion>
         <jUnitVersion>6.0.0</jUnitVersion>
     </properties>

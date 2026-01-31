@@ -1,4 +1,4 @@
-// Copyright © 2024-2025 Petr Panteleyev
+// Copyright © 2024-2026 Petr Panteleyev
 // SPDX-License-Identifier: BSD-2-Clause
 package org.panteleyev.sapper.score;
 
@@ -24,6 +24,7 @@ import static org.panteleyev.fx.factories.StringFactory.COLON;
 import static org.panteleyev.fx.factories.StringFactory.string;
 import static org.panteleyev.sapper.Constants.UI;
 import static org.panteleyev.sapper.GlobalContext.scoreboard;
+import static org.panteleyev.sapper.Styles.DIALOG_STYLE_SHEET;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_DATE;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_MINEFIELD;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_RESULTS;
@@ -42,7 +43,7 @@ public class ScoreBoardDialog extends BaseDialog<Object> {
     };
 
     public ScoreBoardDialog(Controller owner, BoardSize boardSize) {
-        super(owner, "/dialog.css");
+        super(owner, DIALOG_STYLE_SHEET);
         setTitle(string(UI, I18N_RESULTS));
 
         var root = new BorderPane();

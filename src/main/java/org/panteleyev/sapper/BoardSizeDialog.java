@@ -1,4 +1,4 @@
-// Copyright © 2024-2025 Petr Panteleyev
+// Copyright © 2024-2026 Petr Panteleyev
 // SPDX-License-Identifier: BSD-2-Clause
 package org.panteleyev.sapper;
 
@@ -20,6 +20,7 @@ import static org.panteleyev.fx.factories.StringFactory.string;
 import static org.panteleyev.fx.factories.grid.GridPaneFactory.gridPane;
 import static org.panteleyev.fx.factories.grid.GridRow.gridRow;
 import static org.panteleyev.sapper.Constants.UI;
+import static org.panteleyev.sapper.Styles.DIALOG_STYLE_SHEET;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_HEIGHT;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_MINES;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_USER_GAME;
@@ -36,7 +37,7 @@ public class BoardSizeDialog extends BaseDialog<BoardSize> {
     private final Label mineLabel = label("1 - " + (MIN_WIDTH - 1) * (MIN_HEIGHT - 1));
 
     public BoardSizeDialog(Controller owner) {
-        super(owner, "/dialog.css");
+        super(owner, DIALOG_STYLE_SHEET);
         setTitle(string(UI, I18N_USER_GAME));
 
         widthSpinner.valueProperty().addListener((_, _, _) -> adjustMineSpinner());
