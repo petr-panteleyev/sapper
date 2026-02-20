@@ -1,14 +1,14 @@
-/*
- Copyright © 2024 Petr Panteleyev <petr@panteleyev.org>
- SPDX-License-Identifier: BSD-2-Clause
- */
+// Copyright © 2024-2026 Petr Panteleyev
+// SPDX-License-Identifier: BSD-2-Clause
 package org.panteleyev.sapper.game;
 
 public final class Game {
+    @FunctionalInterface
     public interface CellChangeCallback {
         void onCellChanged(int x, int newValue);
     }
 
+    @FunctionalInterface
     public interface GameStatusChangeCallback {
         void onGameStatusChanged(int x, GameStatus newStatus);
     }
@@ -19,10 +19,7 @@ public final class Game {
     private final CellChangeCallback cellChangeCallback;
     private final GameStatusChangeCallback gameStatusChangeCallback;
 
-    public Game(
-            CellChangeCallback cellChangeCallback,
-            GameStatusChangeCallback gameStatusChangeCallback
-    ) {
+    public Game(CellChangeCallback cellChangeCallback, GameStatusChangeCallback gameStatusChangeCallback) {
         this.cellChangeCallback = cellChangeCallback;
         this.gameStatusChangeCallback = gameStatusChangeCallback;
     }
@@ -65,9 +62,7 @@ public final class Game {
     public void processHit(int x) {
         var value = board.getValue(x);
 
-        if (Cell.isExplored(value) || Cell.flag(value)) {
-            return;
-        }
+        if (Cell.isExplored(value) || Cell.flag(value)) return;
 
         if (gameStatus == GameStatus.INITIAL) {
             board.initialize(x);
@@ -94,14 +89,12 @@ public final class Game {
     private void countMines(int x) {
         var result = board.countMines(x);
         cellChangeCallback.onCellChanged(x, result.value());
-        if (result.value() == 0) {
-            for (var neighbour : result.neighbours()) {
-                if (neighbour < 0) {
-                    break;
-                }
-                if (Cell.empty(board.getValue(neighbour))) {
-                    countMines(neighbour);
-                }
+        if (result.value() != 0) return;
+
+        for (var neighbour : result.neighbours()) {
+            if (neighbour < 0) break;
+            if (Cell.empty(board.getValue(neighbour))) {
+                countMines(neighbour);
             }
         }
     }

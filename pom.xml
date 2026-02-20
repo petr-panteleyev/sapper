@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Copyright © 2024-2025 Petr Panteleyev
-  SPDX-License-Identifier: BSD-2-Clause
-  -->
+<!-- Copyright © 2024-2026 Petr Panteleyev -->
+<!-- SPDX-License-Identifier: BSD-2-Clause -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.panteleyev</groupId>
     <artifactId>sapper</artifactId>
-    <version>26.1.1</version>
+    <version>26.2.1</version>
     <packaging>jar</packaging>
     <name>Sapper Game</name>
 
@@ -90,7 +88,7 @@
         <!-- Plugins -->
         <mavenCleanPluginVersion>3.5.0</mavenCleanPluginVersion>
         <mavenResourcesPluginVersion>3.4.0</mavenResourcesPluginVersion>
-        <mavenCompilerPluginVersion>3.14.1</mavenCompilerPluginVersion>
+        <mavenCompilerPluginVersion>3.15.0</mavenCompilerPluginVersion>
         <mavenJarPluginVersion>3.5.0</mavenJarPluginVersion>
         <mavenSurefirePluginVersion>3.5.4</mavenSurefirePluginVersion>
         <mavenDependencyPluginVersion>3.9.0</mavenDependencyPluginVersion>
@@ -100,9 +98,9 @@
         <!-- Dependencies -->
         <javaFxVersion>25.0.2</javaFxVersion>
         <javaCommonsVersion>1.6.0</javaCommonsVersion>
-        <javaFxHelpersVersion>2.3.0</javaFxHelpersVersion>
+        <javaFxHelpersVersion>2.3.1</javaFxHelpersVersion>
         <javaFreeDesktopVersion>0.5.1</javaFreeDesktopVersion>
-        <jUnitVersion>6.0.0</jUnitVersion>
+        <jUnitVersion>6.0.3</jUnitVersion>
     </properties>
 
     <dependencies>

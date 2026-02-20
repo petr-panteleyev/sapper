@@ -1,7 +1,5 @@
-/*
- Copyright © 2024 Petr Panteleyev <petr@panteleyev.org>
- SPDX-License-Identifier: BSD-2-Clause
- */
+// Copyright © 2024-2026 Petr Panteleyev
+// SPDX-License-Identifier: BSD-2-Clause
 package org.panteleyev.sapper;
 
 import org.w3c.dom.Document;
@@ -18,6 +16,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public final class XMLUtils {
+    private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
+    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
+
     private XMLUtils() {
     }
 
@@ -29,17 +30,12 @@ public final class XMLUtils {
 
     public static int getAttribute(Element element, String name, int defValue) {
         var value = element.getAttribute(name);
-        if (value.isBlank()) {
-            return defValue;
-        } else {
-            return Integer.parseInt(value);
-        }
+        return value.isBlank() ? defValue : Integer.parseInt(value);
     }
 
     public static Element createDocument(String rootElementName) {
         try {
-            var docFactory = DocumentBuilderFactory.newInstance();
-            var docBuilder = docFactory.newDocumentBuilder();
+            var docBuilder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
 
             var doc = docBuilder.newDocument();
             var rootElement = doc.createElement(rootElementName);
@@ -53,8 +49,7 @@ public final class XMLUtils {
 
     public static Element readDocument(InputStream in) {
         try {
-            var docFactory = DocumentBuilderFactory.newInstance();
-            var docBuilder = docFactory.newDocumentBuilder();
+            var docBuilder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
             var doc = docBuilder.parse(in);
             return doc.getDocumentElement();
         } catch (Exception ex) {
@@ -64,7 +59,7 @@ public final class XMLUtils {
 
     public static void writeDocument(Document document, OutputStream outputStream) {
         try {
-            var transformer = TransformerFactory.newInstance().newTransformer();
+            var transformer = TRANSFORMER_FACTORY.newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
             transformer.transform(new DOMSource(document), new StreamResult(outputStream));

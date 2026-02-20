@@ -1,7 +1,5 @@
-/*
- Copyright © 2024 Petr Panteleyev <petr@panteleyev.org>
- SPDX-License-Identifier: BSD-2-Clause
- */
+// Copyright © 2024-2026 Petr Panteleyev
+// SPDX-License-Identifier: BSD-2-Clause
 package org.panteleyev.sapper.game;
 
 import org.panteleyev.sapper.MineCountResult;
@@ -128,9 +126,7 @@ final class Board {
         for (int w = -width; w <= width; w += width) {
             for (int add = lowerAdd; add <= upperAdd; add += 1) {
                 var pos = center + w + add;
-                if (pos == center || pos < 0 || pos >= size) {
-                    continue;
-                }
+                if (pos == center || pos < 0 || pos >= size) continue;
 
                 if (board[pos] > MAX_MINES) {
                     result[index++] = pos;

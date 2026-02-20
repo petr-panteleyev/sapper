@@ -19,8 +19,8 @@ import static org.panteleyev.fx.factories.StringFactory.string;
 import static org.panteleyev.sapper.Constants.APP_TITLE;
 import static org.panteleyev.sapper.Constants.BUILD_INFO_BUNDLE;
 import static org.panteleyev.sapper.Constants.UI;
-import static org.panteleyev.sapper.Styles.BIG_SPACING;
 import static org.panteleyev.sapper.Styles.ABOUT_DIALOG_STYLE_SHEET;
+import static org.panteleyev.sapper.Styles.BIG_SPACING;
 import static org.panteleyev.sapper.Styles.SMALL_SPACING;
 import static org.panteleyev.sapper.Styles.STYLE_ABOUT_LABEL;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_ABOUT;
@@ -60,20 +60,13 @@ public class AboutDialog extends BaseDialog<Object> {
                 .withZoneSameInstant(LOCAL_TIME_ZONE);
 
         var box = vBox(BIG_SPACING,
-                vBox(SMALL_SPACING,
-                        aboutLabel,
-                        label("Built on " + LOCAL_FORMATTER.format(timestamp))
-                ),
-                vBox(SMALL_SPACING,
-                        label("Runtime version: " + RUNTIME),
-                        label("VM: " + VM)
-                ),
-                vBox(SMALL_SPACING,
-                        label("Copyright © " + YEAR + " Petr Panteleyev")
-                )
+                vBox(SMALL_SPACING, aboutLabel, label("Built on " + LOCAL_FORMATTER.format(timestamp))),
+                vBox(SMALL_SPACING, label("Runtime version: " + RUNTIME), label("VM: " + VM)),
+                vBox(SMALL_SPACING, label("Copyright © " + YEAR + " Petr Panteleyev"))
         );
 
         getDialogPane().setContent(box);
         getDialogPane().getButtonTypes().addAll(ButtonType.OK);
+        centerOnScreen();
     }
 }

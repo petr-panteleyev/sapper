@@ -1,10 +1,13 @@
-// Copyright © 2024-2025 Petr Panteleyev
+// Copyright © 2024-2026 Petr Panteleyev
 // SPDX-License-Identifier: BSD-2-Clause
 package org.panteleyev.sapper;
 
+import javafx.event.ActionEvent;
 import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -16,6 +19,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -40,12 +44,11 @@ import java.util.List;
 
 import static org.panteleyev.freedesktop.Utility.isLinux;
 import static org.panteleyev.freedesktop.entry.DesktopEntryBuilder.localeString;
-import static org.panteleyev.functional.Scope.apply;
 import static org.panteleyev.fx.factories.MenuFactory.menu;
+import static org.panteleyev.fx.factories.MenuFactory.menuBar;
 import static org.panteleyev.fx.factories.MenuFactory.menuItem;
 import static org.panteleyev.fx.factories.StringFactory.ELLIPSIS;
 import static org.panteleyev.fx.factories.StringFactory.string;
-import static org.panteleyev.fx.factories.grid.ColumnConstraintsFactory.columnConstraints;
 import static org.panteleyev.fx.factories.grid.GridPaneFactory.gridPane;
 import static org.panteleyev.fx.factories.grid.GridRow.gridRow;
 import static org.panteleyev.sapper.Constants.APP_TITLE;
@@ -73,7 +76,7 @@ public class SapperWindowController extends Controller implements Game.CellChang
     private static final double CELL_FONT_SIZE = 20;
 
     private static final String IND_FONT_FAMILY = "Pixel LCD7";
-    private static final double IND_FONT_SIZE = 38;
+    private static final double IND_FONT_SIZE = 28;
 
     private static final double CTRL_BUTTON_IMAGE_SIZE = 48;
 
@@ -81,13 +84,14 @@ public class SapperWindowController extends Controller implements Game.CellChang
     private final Game game = new Game(this, this);
     private final ToggleButton[] buttons = new ToggleButton[MAX_WIDTH * MAX_HEIGHT];
 
-    private final Label remainingMinesLabel = new Label();
-    private final ImageView controlButtonImageView;
+    private final Font indicatorFont = Font.font(IND_FONT_FAMILY, FontWeight.BOLD, IND_FONT_SIZE);
+
+    private final Label remainingMinesLabel = counterLabel(indicatorFont);
+    private final ImageView controlButtonImageView = controlButtonImageView();
     private final GridPane grid = new GridPane();
 
     private final Menu customGameMenu = menu(string(UI, I18N_USER_GAME, ELLIPSIS));
-    private final MenuItem newCustomGameMenuItem = apply(menuItem(string(UI, I18N_NEW, ELLIPSIS)),
-            item -> item.setOnAction(_ -> onCustomGame()));
+    private final MenuItem newCustomGameMenuItem = newCustomGameMenuItem();
 
     private static final Color[] NUMBER_COLORS = {
             null,
@@ -103,76 +107,33 @@ public class SapperWindowController extends Controller implements Game.CellChang
 
     private final GameTimer timer = new GameTimer();
 
+    private static final Insets ZERO_INSETS = new Insets(0);
+
     public SapperWindowController(Stage stage) {
         super(stage, null);
         stage.setResizable(false);
         stage.getIcons().add(Picture.ICON.getImage());
 
         var cellFont = Font.font(CELL_FONT_FAMILY, FontWeight.BOLD, CELL_FONT_SIZE);
-        var insets = new Insets(0);
 
         for (int x = 0; x < buttons.length; x++) {
-            var button = new ToggleButton();
-            button.setFont(cellFont);
-            button.setPadding(insets);
-            button.setOpacity(1);
-            button.setPrefSize(CELL_SIZE, CELL_SIZE);
-            button.setMaxSize(CELL_SIZE, CELL_SIZE);
-            button.setMinSize(CELL_SIZE, CELL_SIZE);
-            button.setFocusTraversable(false);
-            button.setUserData(x);
-            button.addEventFilter(MouseEvent.MOUSE_CLICKED, Event::consume);
-            button.addEventFilter(MouseEvent.MOUSE_RELEASED, this::onButtonPress);
-            buttons[x] = button;
+            buttons[x] = createCellButton(x, cellFont, this::onButtonPress);
         }
 
-        var timerLabel = new Label();
-        timerLabel.textProperty().bind(timer.timeStringProperty());
-
-        var indicatorFont = Font.font(IND_FONT_FAMILY, FontWeight.BOLD, IND_FONT_SIZE);
-
-        remainingMinesLabel.setFont(indicatorFont);
-        remainingMinesLabel.setTextFill(Color.RED);
-
-        timerLabel.setFont(indicatorFont);
-        timerLabel.setTextFill(Color.RED);
-
-        controlButtonImageView = new ImageView(Picture.SMILING_FACE.getImage());
-        controlButtonImageView.setFitWidth(CTRL_BUTTON_IMAGE_SIZE);
-        controlButtonImageView.setFitHeight(CTRL_BUTTON_IMAGE_SIZE);
-        var controlButton = new Button(null, controlButtonImageView);
-        controlButton.setFocusTraversable(false);
-        controlButton.setOnAction(_ -> newGame(boardSize));
-
-        var innerPane = new BorderPane(grid);
         var toolBar = gridPane(
-                List.of(gridRow(remainingMinesLabel, controlButton, timerLabel)),
-                List.of(
-                        apply(columnConstraints(), cc -> {
-                            cc.setPercentWidth(33.33);
-                            cc.setHalignment(HPos.LEFT);
-                        }),
-                        apply(columnConstraints(), cc -> {
-                            cc.setPercentWidth(33.33);
-                            cc.setHalignment(HPos.CENTER);
-                        }),
-                        apply(columnConstraints(), cc -> {
-                            cc.setPercentWidth(33.33);
-                            cc.setHalignment(HPos.RIGHT);
-                        })
-                )
+                List.of(gridRow(
+                        remainingMinesLabel,
+                        controlButton(controlButtonImageView, _ -> newGame(boardSize)),
+                        timerLabel(indicatorFont, timer))),
+                List.of(constraints(HPos.LEFT), constraints(HPos.CENTER), constraints(HPos.RIGHT))
         );
 
-        remainingMinesLabel.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-        controlButton.setAlignment(javafx.geometry.Pos.CENTER);
-        timerLabel.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
-        innerPane.setTop(toolBar);
+        var innerPane = new BorderPane(grid, toolBar, null, null, null);
+
+        remainingMinesLabel.setAlignment(Pos.CENTER_LEFT);
         BorderPane.setMargin(toolBar, new Insets(10));
 
-        var borderPane = new BorderPane(innerPane);
-        borderPane.setTop(createMainMenu());
-
-        setupWindow(borderPane);
+        setupWindow(new BorderPane(innerPane, createMainMenu(), null, null, null));
 
         newGame(settings().getLastBoardSize());
         stage.centerOnScreen();
@@ -207,41 +168,31 @@ public class SapperWindowController extends Controller implements Game.CellChang
         var index = 0;
         for (var y = 0; y < boardSize.height(); y++) {
             for (var x = 0; x < boardSize.width(); x++) {
-                var button = buttons[index++];
-                button.setDisable(false);
-                button.setSelected(false);
-                button.setText(null);
-                button.setGraphic(null);
-                button.setTextFill(Color.BLACK);
-                grid.add(button, x, y);
+                grid.add(resetCellButton(buttons[index++]), x, y);
             }
         }
     }
 
     private MenuBar createMainMenu() {
         buildCustomGamesMenu();
-        return new MenuBar(
+        return menuBar(
                 menu(string(UI, I18N_FILE),
-                        isLinux() ? apply(menuItem(string(UI, I18N_CREATE_DESKTOP_ENTRY)),
-                                mi -> mi.setOnAction(_ -> onCreateDesktopEntry())) : null,
+                        isLinux() ? menuItem(string(UI, I18N_CREATE_DESKTOP_ENTRY),
+                                _ -> onCreateDesktopEntry()) : null,
                         isLinux() ? new SeparatorMenuItem() : null,
-                        apply(menuItem(string(UI, I18N_EXIT)), mi -> mi.setOnAction(_ -> onExit()))
+                        menuItem(string(UI, I18N_EXIT), _ -> onExit())
                 ),
                 menu(string(UI, I18N_GAME),
-                        apply(menuItem(BoardSize.BIG.toString()), mi -> mi.setOnAction(_ -> newGame(BoardSize.BIG))),
-                        apply(menuItem(BoardSize.MEDIUM.toString()),
-                                mi -> mi.setOnAction(_ -> newGame(BoardSize.MEDIUM))),
-                        apply(menuItem(BoardSize.SMALL.toString()),
-                                mi -> mi.setOnAction(_ -> newGame(BoardSize.SMALL))),
+                        newGameMenuItem(BoardSize.BIG),
+                        newGameMenuItem(BoardSize.MEDIUM),
+                        newGameMenuItem(BoardSize.SMALL),
                         new SeparatorMenuItem(),
                         customGameMenu,
                         new SeparatorMenuItem(),
-                        apply(menuItem(string(UI, I18N_RESULTS)),
-                                mi -> mi.setOnAction(_ -> new ScoreBoardDialog(this, boardSize).showAndWait()))
+                        resultsMenuItem()
                 ),
                 menu(string(UI, I18N_HELP),
-                        apply(menuItem(string(UI, I18N_ABOUT, ELLIPSIS)),
-                                mi -> mi.setOnAction(_ -> new AboutDialog(this).showAndWait())))
+                        menuItem(string(UI, I18N_ABOUT, ELLIPSIS), _ -> new AboutDialog(this).showAndWait()))
         );
     }
 
@@ -257,9 +208,7 @@ public class SapperWindowController extends Controller implements Game.CellChang
         if (!customSizes.isEmpty()) {
             customGameMenu.getItems().add(new SeparatorMenuItem());
             for (var size : customSizes) {
-                customGameMenu.getItems().add(
-                        apply(menuItem(size.toString()), mi -> mi.setOnAction(_ -> newGame(size)))
-                );
+                customGameMenu.getItems().add(menuItem(size.toString(), _ -> newGame(size)));
             }
         }
     }
@@ -272,11 +221,7 @@ public class SapperWindowController extends Controller implements Game.CellChang
         }
 
         controlButtonImageView.setImage(Picture.LAUGHING_FACE.getImage());
-        var gameScore = new GameScore(
-                boardSize,
-                LocalDate.now(),
-                timer.getLocalTime()
-        );
+        var gameScore = new GameScore(boardSize, LocalDate.now(), timer.getLocalTime());
         var top = scoreboard().add(gameScore);
         scoreboard().save();
         buildCustomGamesMenu();
@@ -347,9 +292,7 @@ public class SapperWindowController extends Controller implements Game.CellChang
     private void onButtonPress(MouseEvent event) {
         event.consume();
 
-        if (game.getGameStatus().isFinal()) {
-            return;
-        }
+        if (game.getGameStatus().isFinal()) return;
 
         if (event.getSource() instanceof ToggleButton button
                 && button.getUserData() instanceof Integer hitPoint) {
@@ -374,9 +317,8 @@ public class SapperWindowController extends Controller implements Game.CellChang
     }
 
     private void onCreateDesktopEntry() {
-        if (!isLinux()) {
-            return;
-        }
+        if (!isLinux()) return;
+
         Utility.getExecutablePath().ifPresent(command -> {
             var execFile = new File(command);
             var rootDir = execFile.getParentFile().getParentFile().getAbsolutePath();
@@ -393,5 +335,85 @@ public class SapperWindowController extends Controller implements Game.CellChang
                     .build();
             desktopEntry.write("sapper");
         });
+    }
+
+    private MenuItem newGameMenuItem(BoardSize boardSize) {
+        var menuItem = new MenuItem(boardSize.toString());
+        menuItem.setOnAction(_ -> newGame(boardSize));
+        return menuItem;
+    }
+
+    private MenuItem newCustomGameMenuItem() {
+        var menuItem = new MenuItem(string(UI, I18N_NEW, ELLIPSIS));
+        menuItem.setOnAction(_ -> onCustomGame());
+        return menuItem;
+    }
+
+    private MenuItem resultsMenuItem() {
+        var menuItem = new MenuItem(string(UI, I18N_RESULTS));
+        menuItem.setOnAction(_ -> new ScoreBoardDialog(this, boardSize).showAndWait());
+        return menuItem;
+    }
+
+    private static ColumnConstraints constraints(HPos alignment) {
+        var constraints = new ColumnConstraints();
+        constraints.setPercentWidth(33.333);
+        constraints.setHalignment(alignment);
+        return constraints;
+    }
+
+    private static ToggleButton createCellButton(int index, Font font, EventHandler<MouseEvent> eventHandler) {
+        var button = new ToggleButton();
+        button.setFont(font);
+        button.setPadding(ZERO_INSETS);
+        button.setOpacity(1);
+        button.setPrefSize(CELL_SIZE, CELL_SIZE);
+        button.setMaxSize(CELL_SIZE, CELL_SIZE);
+        button.setMinSize(CELL_SIZE, CELL_SIZE);
+        button.setFocusTraversable(false);
+        button.setUserData(index);
+        button.addEventFilter(MouseEvent.MOUSE_CLICKED, Event::consume);
+        button.addEventFilter(MouseEvent.MOUSE_RELEASED, eventHandler);
+        return button;
+    }
+
+    private static ToggleButton resetCellButton(ToggleButton button) {
+        button.setDisable(false);
+        button.setSelected(false);
+        button.setText(null);
+        button.setGraphic(null);
+        button.setTextFill(Color.BLACK);
+        return button;
+    }
+
+    private static ImageView controlButtonImageView() {
+        var imageView = new ImageView(Picture.SMILING_FACE.getImage());
+        imageView.setFitWidth(CTRL_BUTTON_IMAGE_SIZE);
+        imageView.setFitHeight(CTRL_BUTTON_IMAGE_SIZE);
+        return imageView;
+    }
+
+    private static Button controlButton(ImageView imageView, EventHandler<ActionEvent> handler) {
+        var button = new Button(null, imageView);
+        button.setFocusTraversable(false);
+        button.setOnAction(handler);
+        button.setAlignment(Pos.CENTER);
+        return button;
+    }
+
+    private static Label counterLabel(Font font) {
+        var label = new Label();
+        label.setFont(font);
+        label.setTextFill(Color.RED);
+        return label;
+    }
+
+    private static Label timerLabel(Font font, GameTimer timer) {
+        var label = new Label();
+        label.textProperty().bind(timer.timeStringProperty());
+        label.setFont(font);
+        label.setTextFill(Color.RED);
+        label.setAlignment(Pos.CENTER_RIGHT);
+        return label;
     }
 }

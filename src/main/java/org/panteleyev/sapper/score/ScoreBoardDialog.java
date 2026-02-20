@@ -9,7 +9,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
 import org.panteleyev.fx.BaseDialog;
 import org.panteleyev.fx.Controller;
 import org.panteleyev.sapper.game.BoardSize;
@@ -33,11 +32,10 @@ import static org.panteleyev.sapper.bundles.Internationalization.I18N_TIME;
 public class ScoreBoardDialog extends BaseDialog<Object> {
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("m 'minutes' s 'seconds'");
 
-
     private final GridPane grid = new GridPane(15, 15);
 
     private final Label[] gridHeaders = {
-            new Label(""),
+            label(""),
             label(string(UI, I18N_TIME)),
             label(string(UI, I18N_DATE))
     };
@@ -46,8 +44,6 @@ public class ScoreBoardDialog extends BaseDialog<Object> {
         super(owner, DIALOG_STYLE_SHEET);
         setTitle(string(UI, I18N_RESULTS));
 
-        var root = new BorderPane();
-
         var items = FXCollections.observableList(scoreboard().getBoardSizes())
                 .sorted(BoardSize.COMPARATOR.reversed());
         var sizeComboBox = comboBox(items);
@@ -55,18 +51,16 @@ public class ScoreBoardDialog extends BaseDialog<Object> {
         var toolBar = hBox(5, label(string(UI, I18N_MINEFIELD, COLON)), sizeComboBox);
         toolBar.setAlignment(Pos.CENTER_LEFT);
 
-        root.setTop(toolBar);
-
-        root.setCenter(grid);
         BorderPane.setMargin(toolBar, new Insets(20, 40, 0, 40));
         BorderPane.setMargin(grid, new Insets(30, 20, 0, 20));
 
-        getDialogPane().setContent(root);
+        getDialogPane().setContent(new BorderPane(grid, toolBar, null, null, null));
 
         sizeComboBox.getSelectionModel().selectedItemProperty().addListener((_, _, sel) -> onTypeSelected(sel));
         sizeComboBox.getSelectionModel().select(boardSize);
 
         getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+        centerOnScreen();
     }
 
     private void onTypeSelected(BoardSize selected) {
@@ -83,16 +77,15 @@ public class ScoreBoardDialog extends BaseDialog<Object> {
         var index = 1;
         for (var score : scores) {
             grid.addRow(index++,
-                    new Label(Integer.toString(index - 1)),
-                    new Label(TIME_FORMATTER.format(score.time())),
-                    new Label(score.date().toString())
+                    label(Integer.toString(index - 1)),
+                    label(TIME_FORMATTER.format(score.time())),
+                    label(score.date().toString())
             );
         }
         while (index <= 10) {
-            grid.addRow(index++, new Label(""), new Label(""), new Label(""));
+            grid.addRow(index++, label(""), label(""), label(""));
         }
 
-        var stage = (Stage) getDialogPane().getScene().getWindow();
-        stage.sizeToScene();
+        getDialogPane().getScene().getWindow().sizeToScene();
     }
 }

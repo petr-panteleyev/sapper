@@ -1,7 +1,5 @@
-/*
- Copyright © 2024 Petr Panteleyev <petr@panteleyev.org>
- SPDX-License-Identifier: BSD-2-Clause
- */
+// Copyright © 2024-2026 Petr Panteleyev
+// SPDX-License-Identifier: BSD-2-Clause
 package org.panteleyev.sapper;
 
 import javafx.application.Platform;
@@ -15,10 +13,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class GameTimer {
+    private static final long FIXED_RATE = 1000L;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("mm:ss");
 
     private Timer timer;
-
     private LocalTime localTime;
 
     private final StringProperty timeStringProperty = new SimpleStringProperty("00:00");
@@ -40,7 +38,7 @@ public class GameTimer {
             public void run() {
                 handle();
             }
-        }, 1000, 1000);
+        }, FIXED_RATE, FIXED_RATE);
     }
 
     public void stop() {
@@ -48,7 +46,6 @@ public class GameTimer {
             timer.cancel();
         }
     }
-
 
     public void handle() {
         localTime = localTime.plusSeconds(1);
