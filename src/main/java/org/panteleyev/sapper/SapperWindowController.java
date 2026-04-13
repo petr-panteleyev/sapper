@@ -16,6 +16,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -26,10 +27,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import org.panteleyev.freedesktop.Utility;
-import org.panteleyev.freedesktop.entry.DesktopEntryBuilder;
-import org.panteleyev.freedesktop.entry.DesktopEntryType;
-import org.panteleyev.freedesktop.menu.Category;
 import org.panteleyev.fx.Controller;
 import org.panteleyev.sapper.game.BoardSize;
 import org.panteleyev.sapper.game.Cell;
@@ -38,12 +35,11 @@ import org.panteleyev.sapper.game.GameStatus;
 import org.panteleyev.sapper.score.GameScore;
 import org.panteleyev.sapper.score.ScoreBoardDialog;
 
-import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
-import static org.panteleyev.freedesktop.Utility.isLinux;
-import static org.panteleyev.freedesktop.entry.DesktopEntryBuilder.localeString;
+import static java.util.Objects.requireNonNull;
 import static org.panteleyev.fx.factories.MenuFactory.menu;
 import static org.panteleyev.fx.factories.MenuFactory.menuBar;
 import static org.panteleyev.fx.factories.MenuFactory.menuItem;
@@ -55,14 +51,22 @@ import static org.panteleyev.sapper.Constants.APP_TITLE;
 import static org.panteleyev.sapper.Constants.UI;
 import static org.panteleyev.sapper.GlobalContext.scoreboard;
 import static org.panteleyev.sapper.GlobalContext.settings;
+import static org.panteleyev.sapper.Shortcuts.SHORTCUT_CUSTOM_GAME;
+import static org.panteleyev.sapper.Shortcuts.SHORTCUT_LARGE_GAME;
+import static org.panteleyev.sapper.Shortcuts.SHORTCUT_MEDIUM_GAME;
+import static org.panteleyev.sapper.Shortcuts.SHORTCUT_NEW_GAME;
+import static org.panteleyev.sapper.Shortcuts.SHORTCUT_RESULTS;
+import static org.panteleyev.sapper.Shortcuts.SHORTCUT_SMALL_GAME;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_ABOUT;
-import static org.panteleyev.sapper.bundles.Internationalization.I18N_CREATE_DESKTOP_ENTRY;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_EXIT;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_FILE;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_GAME;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_HELP;
+import static org.panteleyev.sapper.bundles.Internationalization.I18N_LARGE_GAME;
+import static org.panteleyev.sapper.bundles.Internationalization.I18N_MEDIUM_GAME;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_NEW;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_RESULTS;
+import static org.panteleyev.sapper.bundles.Internationalization.I18N_SMALL_GAME;
 import static org.panteleyev.sapper.bundles.Internationalization.I18N_USER_GAME;
 import static org.panteleyev.sapper.game.BoardSize.MAX_HEIGHT;
 import static org.panteleyev.sapper.game.BoardSize.MAX_WIDTH;
@@ -79,6 +83,18 @@ public class SapperWindowController extends Controller implements Game.CellChang
     private static final double IND_FONT_SIZE = 28;
 
     private static final double CTRL_BUTTON_IMAGE_SIZE = 48;
+
+    private static final Map<BoardSize, KeyCodeCombination> ACCELERATOR_MAP = Map.of(
+            BoardSize.BIG, SHORTCUT_LARGE_GAME,
+            BoardSize.MEDIUM, SHORTCUT_MEDIUM_GAME,
+            BoardSize.SMALL, SHORTCUT_SMALL_GAME
+    );
+
+    private static final Map<BoardSize, String> GAME_NAME_MAP = Map.of(
+            BoardSize.BIG, I18N_LARGE_GAME,
+            BoardSize.MEDIUM, I18N_MEDIUM_GAME,
+            BoardSize.SMALL, I18N_SMALL_GAME
+    );
 
     private BoardSize boardSize = BoardSize.BIG;
     private final Game game = new Game(this, this);
@@ -134,6 +150,7 @@ public class SapperWindowController extends Controller implements Game.CellChang
         BorderPane.setMargin(toolBar, new Insets(10));
 
         setupWindow(new BorderPane(innerPane, createMainMenu(), null, null, null));
+        addAccelerator(SHORTCUT_NEW_GAME, () -> newGame(boardSize));
 
         newGame(settings().getLastBoardSize());
         stage.centerOnScreen();
@@ -177,9 +194,6 @@ public class SapperWindowController extends Controller implements Game.CellChang
         buildCustomGamesMenu();
         return menuBar(
                 menu(string(UI, I18N_FILE),
-                        isLinux() ? menuItem(string(UI, I18N_CREATE_DESKTOP_ENTRY),
-                                _ -> onCreateDesktopEntry()) : null,
-                        isLinux() ? new SeparatorMenuItem() : null,
                         menuItem(string(UI, I18N_EXIT), _ -> onExit())
                 ),
                 menu(string(UI, I18N_GAME),
@@ -316,42 +330,24 @@ public class SapperWindowController extends Controller implements Game.CellChang
         settings().update(settings -> settings.setLastBoardSize(boardSize));
     }
 
-    private void onCreateDesktopEntry() {
-        if (!isLinux()) return;
-
-        Utility.getExecutablePath().ifPresent(command -> {
-            var execFile = new File(command);
-            var rootDir = execFile.getParentFile().getParentFile().getAbsolutePath();
-
-            var desktopEntry = new DesktopEntryBuilder(DesktopEntryType.APPLICATION)
-                    .version(DesktopEntryBuilder.VERSION_1_5)
-                    .name("Sapper")
-                    .name(localeString("Сапёр", "ru_RU"))
-                    .categories(List.of(Category.GAME, Category.JAVA))
-                    .comment("Sapper Game")
-                    .comment(localeString("Игра Сапёр", "ru_RU"))
-                    .exec("\"" + command + "\"")
-                    .icon(rootDir + "/lib/Sapper.png")
-                    .build();
-            desktopEntry.write("sapper");
-        });
-    }
-
     private MenuItem newGameMenuItem(BoardSize boardSize) {
-        var menuItem = new MenuItem(boardSize.toString());
-        menuItem.setOnAction(_ -> newGame(boardSize));
+        var gameNameKey = requireNonNull(GAME_NAME_MAP.get(boardSize));
+        var menuItem = menuItem(string(UI, gameNameKey), _ -> newGame(boardSize));
+        menuItem.setAccelerator(requireNonNull(ACCELERATOR_MAP.get(boardSize)));
         return menuItem;
     }
 
     private MenuItem newCustomGameMenuItem() {
         var menuItem = new MenuItem(string(UI, I18N_NEW, ELLIPSIS));
         menuItem.setOnAction(_ -> onCustomGame());
+        menuItem.setAccelerator(SHORTCUT_CUSTOM_GAME);
         return menuItem;
     }
 
     private MenuItem resultsMenuItem() {
         var menuItem = new MenuItem(string(UI, I18N_RESULTS));
         menuItem.setOnAction(_ -> new ScoreBoardDialog(this, boardSize).showAndWait());
+        menuItem.setAccelerator(SHORTCUT_RESULTS);
         return menuItem;
     }
 

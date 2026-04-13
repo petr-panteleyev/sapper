@@ -1,9 +1,5 @@
 # Sapper
 
-[![License](https://www.panteleyev.org/badges/license-bsd-2.svg)](LICENSE)
-[![JDK](https://www.panteleyev.org/badges/java-25.svg)](https://jdk.java.net/25/)
-[![JDK](https://www.panteleyev.org/badges/javafx-25.svg)](https://jdk.java.net/javafx25/)
-
 Yet another Sapper game.
 
 ![Big Board](docs/board_big.png)
@@ -11,12 +7,10 @@ Yet another Sapper game.
 ## Board Sizes
 
 Three standard board sizes:
-* 8 x 8, 10 mines
-* 16 x 16, 40 mines
-* 30 x 16, 99 mines
+* Small: 8 x 8, 10 mines
+* Medium: 16 x 16, 40 mines
+* Large: 30 x 16, 99 mines
 
 Custom board can be from 8 x 8 up to 30 x 24 with maximum mines number equal to (w - 1) * (h - 1).
 
-## Support
-
-There is no support for this application.
+![Custom Game](docs/custom_game.png)

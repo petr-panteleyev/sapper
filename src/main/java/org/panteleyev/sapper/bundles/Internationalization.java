@@ -1,7 +1,5 @@
-/*
- Copyright © 2024 Petr Panteleyev <petr@panteleyev.org>
- SPDX-License-Identifier: BSD-2-Clause
- */
+// Copyright © 2024-2026 Petr Panteleyev
+// SPDX-License-Identifier: BSD-2-Clause
 package org.panteleyev.sapper.bundles;
 
 public final class Internationalization {
@@ -19,8 +17,10 @@ public final class Internationalization {
     public static final String I18N_SAPPER = "I18N_SAPPER";
     public static final String I18N_TIME = "I18N_TIME";
     public static final String I18N_WIDTH = "I18N_WIDTH";
-    public static final String I18N_CREATE_DESKTOP_ENTRY = "I18N_CREATE_DESKTOP_ENTRY";
     public static final String I18N_USER_GAME = "I18N_USER_GAME";
+    public static final String I18N_LARGE_GAME = "I18N_LARGE_GAME";
+    public static final String I18N_MEDIUM_GAME = "I18N_MEDIUM_GAME";
+    public static final String I18N_SMALL_GAME = "I18N_SMALL_GAME";
 
     private Internationalization() {
     }
