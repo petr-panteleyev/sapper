@@ -1,3 +1,3 @@
 #!/bin/sh
 
-mvn -DskipTests=true clean verify jlink:jlink jpackage:jpackage
+mvn -DskipTests=true clean verify jpackage:jpackage

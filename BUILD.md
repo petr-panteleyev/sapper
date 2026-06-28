@@ -24,7 +24,7 @@ Download and unpack [JavaFX JMODs distribution](https://jdk.java.net/javafx26/).
 
 ```shell
 export JAVAFX_JMODS=/path/to/javafx-jmods-{javafx-version}
-mvn -DskipTests=true clean verify jlink:jlink jpackage:jpackage
+mvn -DskipTests=true clean verify jpackage:jpackage
 ```
 
 ## OS X and MS Windows
